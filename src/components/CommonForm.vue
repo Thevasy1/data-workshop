@@ -107,7 +107,7 @@ interface FormField {
   max?: number
 }
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     model: Record<string, any>
     fields: FormField[]

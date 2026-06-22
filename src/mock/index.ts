@@ -1,11 +1,97 @@
 import { MockMethod } from 'vite-plugin-mock'
 
+const collectModeMap: Record<string, string> = {
+  full: '全量采集',
+  incremental: '增量采集',
+  scheduled: '定时采集',
+}
+
+const datasetRecords = [
+  {
+    id: 'dt_001',
+    name: '客服问答语料集',
+    description: '用于客服场景文本总结、多轮对话和实体识别任务的数据集。',
+    dataType: 'text',
+    taskType: '文本总结',
+    sourceType: 'api',
+    datasourceId: 'ds_001',
+    datasourceName: '用户行为API',
+    collectStatus: 'success',
+    collectProgress: 100,
+    recordCount: 12860,
+    tags: ['训练集', '标注任务'],
+    ruleConfig: {
+      collectMode: 'full',
+      sampleLimit: 20000,
+      qualityChecks: ['empty', 'duplicate'],
+      ruleNote: '按接口返回字段生成文本样本，并去除空值记录。',
+    },
+    createdAt: '2026-06-16 09:00:00',
+    updatedAt: '2026-06-21 10:30:00',
+  },
+  {
+    id: 'dt_002',
+    name: '设备巡检图片集',
+    description: '用于 2D 图像标注和视觉质检训练的数据集。',
+    dataType: 'image',
+    taskType: '2D图像',
+    sourceType: 'upload',
+    datasourceId: 'ds_003',
+    datasourceName: '日志文件上传',
+    collectStatus: 'pending',
+    collectProgress: 0,
+    recordCount: 2340,
+    tags: ['验证集'],
+    ruleConfig: {
+      collectMode: 'incremental',
+      sampleLimit: 5000,
+      qualityChecks: ['empty', 'format'],
+      ruleNote: '按上传批次增量导入图片，并检查文件格式。',
+    },
+    createdAt: '2026-06-18 14:20:00',
+    updatedAt: '2026-06-20 17:10:00',
+  },
+  {
+    id: 'dt_003',
+    name: '语音转录训练集',
+    description: '面向音频转文字任务的音视频数据集。',
+    dataType: 'audioVideo',
+    taskType: '语音转录',
+    sourceType: 'database',
+    datasourceId: 'ds_002',
+    datasourceName: '订单数据库',
+    collectStatus: 'running',
+    collectProgress: 45,
+    recordCount: 8600,
+    tags: ['训练集', '高优先级'],
+    ruleConfig: {
+      collectMode: 'scheduled',
+      sampleLimit: 12000,
+      qualityChecks: ['duplicate', 'format'],
+      ruleNote: '每天定时同步新增音频样本，并执行重复样本检测。',
+    },
+    createdAt: '2026-06-19 11:00:00',
+    updatedAt: '2026-06-21 13:40:00',
+  },
+]
+
+const normalizeDatasetRecord = (record: any) => ({
+  ...record,
+  collectModeLabel: collectModeMap[record.ruleConfig?.collectMode] || '全量采集',
+})
+
+const getMockId = ({ params, query, url }: any) => {
+  if (params?.id) return params.id
+  if (query?.id) return query.id
+  return String(url || '').split('?')[0].split('/').filter(Boolean).pop()
+}
+
 export default [
   // 数据源列表
   {
     url: '/api/datasource/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query }: any) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `ds_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
@@ -24,10 +110,10 @@ export default [
   {
     url: '/api/datasource/detail/:id',
     method: 'get',
-    response: ({ params }) => ({
+    response: ({ params }: any) => ({
       code: 0,
       data: {
-        id: params.id,
+        id: params?.id || 'ds_001',
         name: '示例数据源',
         type: 'api',
         sourceUrl: 'https://api.example.com/data',
@@ -110,19 +196,17 @@ export default [
   {
     url: '/api/dataset/list',
     method: 'get',
-    response: ({ query }) => {
-      const { page = 1, pageSize = 10 } = query
-      const list = Array.from({ length: pageSize }, (_, i) => ({
-        id: `dt_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
-        name: `数据集 ${(page - 1) * pageSize + i + 1}`,
-        datasourceId: `ds_${String(i + 1).padStart(3, '0')}`,
-        datasourceName: `数据源 ${i + 1}`,
-        collectStatus: ['pending', 'running', 'success', 'failed', 'paused'][i % 5],
-        collectProgress: [0, 45, 100, 0, 60][i % 5],
-        recordCount: [0, 23000, 50000, 0, 15000][i % 5],
-        createdAt: '2026-06-16T09:00:00Z',
-      }))
-      return { code: 0, data: { list, total: 50, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
+    response: ({ query }: any) => {
+      const { page = 1, pageSize = 10, keyword = '', status = '', dataType = '', sourceType = '' } = query
+      const filtered = datasetRecords.filter((item) => {
+        return (!keyword || item.name.includes(keyword))
+          && (!status || item.collectStatus === status)
+          && (!dataType || item.dataType === dataType)
+          && (!sourceType || item.sourceType === sourceType)
+      })
+      const start = (Number(page) - 1) * Number(pageSize)
+      const list = filtered.slice(start, start + Number(pageSize)).map(normalizeDatasetRecord)
+      return { code: 0, data: { list, total: filtered.length, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
     },
   },
   // 可选数据源
@@ -143,17 +227,54 @@ export default [
   {
     url: '/api/dataset/create',
     method: 'post',
-    response: () => ({ code: 0, data: { id: 'dt_new' }, message: 'success' }),
+    response: ({ body }: any) => {
+      const id = `dt_${String(datasetRecords.length + 1).padStart(3, '0')}`
+      datasetRecords.unshift({
+        id,
+        ...body,
+        datasourceId: `ds_${body.sourceType || 'upload'}`,
+        datasourceName: ({ upload: '本地上传', api: 'API接口', database: '数据库', web: 'Web抓取' } as Record<string, string>)[body.sourceType] || '本地上传',
+        collectStatus: 'pending',
+        collectProgress: 0,
+        recordCount: body.ruleConfig?.sampleLimit || 0,
+        createdAt: '2026-06-22 09:00:00',
+        updatedAt: '2026-06-22 09:00:00',
+      })
+      return { code: 0, data: { id }, message: 'success' }
+    },
+  },
+  // 更新数据集
+  {
+    url: '/api/dataset/:id',
+    method: 'put',
+    response: ({ params, query, url, body }: any) => {
+      const id = getMockId({ params, query, url }) || body?.id
+      const index = datasetRecords.findIndex((item) => item.id === id)
+      if (index >= 0) {
+        datasetRecords[index] = {
+          ...datasetRecords[index],
+          ...body,
+          datasourceName: ({ upload: '本地上传', api: 'API接口', database: '数据库', web: 'Web抓取' } as Record<string, string>)[body.sourceType] || datasetRecords[index].datasourceName,
+          recordCount: body.ruleConfig?.sampleLimit || datasetRecords[index].recordCount,
+          updatedAt: '2026-06-22 09:30:00',
+        }
+      }
+      return { code: 0, data: null, message: 'success' }
+    },
   },
   // 获取配置
   {
     url: '/api/dataset/:id/config',
     method: 'get',
-    response: () => ({
-      code: 0,
-      data: { name: '示例数据集', datasourceId: 'ds_001', config: {} },
-      message: 'success',
-    }),
+    response: ({ params, query, url }: any) => {
+      const id = getMockId({ params, query, url })
+      const record = datasetRecords.find((item) => item.id === id) || datasetRecords[0]
+      return {
+        code: 0,
+        data: normalizeDatasetRecord(record),
+        message: 'success',
+      }
+    },
   },
   // 更新配置
   {
@@ -183,7 +304,14 @@ export default [
   {
     url: '/api/dataset/:id',
     method: 'delete',
-    response: () => ({ code: 0, data: null, message: 'success' }),
+    response: ({ params, query, url }: any) => {
+      const id = getMockId({ params, query, url })
+      const index = datasetRecords.findIndex((item) => item.id === id)
+      if (index >= 0) {
+        datasetRecords.splice(index, 1)
+      }
+      return { code: 0, data: null, message: 'success' }
+    },
   },
   // 获取状态
   {
@@ -213,7 +341,7 @@ export default [
   {
     url: '/api/preprocess/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query }: any) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `pp_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,

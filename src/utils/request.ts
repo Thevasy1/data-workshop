@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
+import type { AxiosRequestConfig } from 'axios'
 
 const request = axios.create({
   baseURL: '/api',
@@ -35,4 +37,11 @@ request.interceptors.response.use(
   }
 )
 
-export default request
+interface ApiRequest {
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+}
+
+export default request as unknown as ApiRequest

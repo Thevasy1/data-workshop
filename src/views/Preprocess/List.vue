@@ -43,6 +43,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import CommonTable from '@/components/CommonTable.vue'
 import StatusTag from '@/components/StatusTag.vue'
 import preprocessApi from '@/api/preprocess'
@@ -117,6 +119,7 @@ const handleVersions = (row: any) => {
 }
 
 const handleDelete = (row: any) => {
+  console.log('删除预处理任务', row.id)
   ElMessageBox.confirm('确认删除该预处理任务？', '提示', { type: 'warning' }).then(async () => {
     // TODO: 调用删除接口
     ElMessage.success('删除成功')

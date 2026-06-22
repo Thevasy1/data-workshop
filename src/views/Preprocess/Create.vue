@@ -93,6 +93,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import preprocessApi from '@/api/preprocess'
 
 const router = useRouter()

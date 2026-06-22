@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       component: PageLayout,
-      redirect: '/datasource/list',
+      redirect: '/dataset/list',
       children: [
         {
           path: '/datasource',
@@ -48,6 +48,12 @@ const router = createRouter({
               name: 'DatasetCreate',
               component: () => import('@/views/Dataset/Create.vue'),
               meta: { title: '创建数据集' },
+            },
+            {
+              path: 'edit/:id',
+              name: 'DatasetEdit',
+              component: () => import('@/views/Dataset/Create.vue'),
+              meta: { title: '修改数据集' },
             },
           ],
         },
