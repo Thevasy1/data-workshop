@@ -38,7 +38,7 @@
               <el-radio label="fill">填充默认值</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="异常值过滤" v-if="form.config.nullStrategy === 'fill'">
+          <el-form-item label="异常值过滤">
             <el-switch v-model="form.config.filterOutlier" />
           </el-form-item>
         </template>
@@ -91,28 +91,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import preprocessApi from '@/api/preprocess'
+
+/* 各处理方式的配置类型 */
+interface CleanConfig {
+  nullStrategy: 'delete' | 'fill'
+  filterOutlier: boolean
+}
+interface DedupConfig {
+  dedupFields: string[]
+  keepStrategy: 'first' | 'last'
+}
+interface NormalizeConfig {
+  normalizeMethod: 'zscore' | 'minmax'
+}
+interface FormatConfig {
+  targetFormat: 'csv' | 'json' | 'excel'
+}
+
+type ProcessConfig = CleanConfig | DedupConfig | NormalizeConfig | FormatConfig
+
+const defaultConfigs: Record<string, ProcessConfig> = {
+  clean: { nullStrategy: 'delete', filterOutlier: false },
+  dedup: { dedupFields: [], keepStrategy: 'first' },
+  normalize: { normalizeMethod: 'zscore' },
+  format: { targetFormat: 'csv' },
+}
 
 const router = useRouter()
 const formRef = ref()
 
 const datasetOptions = ref<{ id: string; name: string }[]>([])
 
-const form = ref({
+interface PreprocessForm {
+  name: string
+  datasetId: string
+  processType: string
+  config: ProcessConfig
+}
+
+const form = ref<PreprocessForm>({
   name: '',
   datasetId: '',
   processType: 'clean',
-  config: {
-    nullStrategy: 'delete',
-    filterOutlier: false,
-    dedupFields: [],
-    keepStrategy: 'first',
-    normalizeMethod: 'zscore',
-    targetFormat: 'csv',
-  },
+  config: { ...defaultConfigs.clean },
 })
+
+/* 切换处理方式时重置配置 */
+watch(
+  () => form.value.processType,
+  (newType) => {
+    form.value.config = { ...defaultConfigs[newType] }
+  }
+)
 
 const rules = {
   name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
@@ -125,7 +158,14 @@ const handleSubmit = async () => {
   if (!valid) return
 
   try {
-    await preprocessApi.create(form.value)
+    /* 只提交当前处理方式对应的配置字段 */
+    const payload = {
+      name: form.value.name,
+      datasetId: form.value.datasetId,
+      processType: form.value.processType,
+      config: form.value.config,
+    }
+    await preprocessApi.create(payload)
     ElMessage.success('创建成功')
     router.push('/preprocess/list')
   } catch (e) {

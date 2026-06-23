@@ -4,6 +4,11 @@ export interface PreprocessParams {
   page?: number
   pageSize?: number
   keyword?: string
+  processType?: string
+  status?: string
+  datasetId?: string
+  startDate?: string
+  endDate?: string
 }
 
 export default {

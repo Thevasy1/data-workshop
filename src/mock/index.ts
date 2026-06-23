@@ -214,18 +214,46 @@ export default [
     url: '/api/preprocess/list',
     method: 'get',
     response: ({ query }) => {
-      const { page = 1, pageSize = 10 } = query
-      const list = Array.from({ length: pageSize }, (_, i) => ({
-        id: `pp_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
-        name: `预处理任务 ${(page - 1) * pageSize + i + 1}`,
-        datasetId: `dt_${String(i + 1).padStart(3, '0')}`,
-        datasetName: `数据集 ${i + 1}`,
+      const { page = 1, pageSize = 10, keyword, processType, status, datasetId, startDate, endDate } = query
+
+      // 生成基础数据
+      const allData = Array.from({ length: 30 }, (_, i) => ({
+        id: `pp_${String(i + 1).padStart(3, '0')}`,
+        name: `预处理任务 ${i + 1}`,
+        datasetId: `dt_${String((i % 5) + 1).padStart(3, '0')}`,
+        datasetName: `数据集 ${(i % 5) + 1}`,
         processType: ['clean', 'dedup', 'normalize', 'format'][i % 4],
         status: ['pending', 'running', 'success', 'failed'][i % 4],
         version: `v${i + 2}`,
-        createdAt: '2026-06-18T11:00:00Z',
+        createdAt: new Date(2026, 5, 18 - (i % 10)).toISOString(),
       }))
-      return { code: 0, data: { list, total: 30, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
+
+      // 按条件筛选
+      let filtered = allData
+      if (keyword) {
+        filtered = filtered.filter((item) => item.name.includes(keyword))
+      }
+      if (processType) {
+        filtered = filtered.filter((item) => item.processType === processType)
+      }
+      if (status) {
+        filtered = filtered.filter((item) => item.status === status)
+      }
+      if (datasetId) {
+        filtered = filtered.filter((item) => item.datasetId === datasetId)
+      }
+      if (startDate) {
+        filtered = filtered.filter((item) => item.createdAt >= startDate)
+      }
+      if (endDate) {
+        filtered = filtered.filter((item) => item.createdAt <= endDate + 'T23:59:59Z')
+      }
+
+      const total = filtered.length
+      const start = (Number(page) - 1) * Number(pageSize)
+      const list = filtered.slice(start, start + Number(pageSize))
+
+      return { code: 0, data: { list, total, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
     },
   },
   // 可用数据集
