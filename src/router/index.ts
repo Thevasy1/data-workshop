@@ -49,6 +49,12 @@ const router = createRouter({
               component: () => import('@/views/Dataset/Create.vue'),
               meta: { title: '创建数据集' },
             },
+            {
+              path: 'detail/:id',
+              name: 'DatasetDetail',
+              component: () => import('@/views/Dataset/Detail.vue'),
+              meta: { title: '数据集详情' },
+            },
           ],
         },
         {
