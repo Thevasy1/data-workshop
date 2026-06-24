@@ -11,6 +11,43 @@
       <el-form-item label="名称">
         <el-input v-model="searchForm.keyword" placeholder="请输入任务名称" clearable />
       </el-form-item>
+      <el-form-item label="处理方式">
+        <el-select v-model="searchForm.processTypes" multiple placeholder="全部方式" clearable collapse-tags style="width: 200px">
+          <el-option label="数据清洗" value="clean" />
+          <el-option label="数据去重" value="dedup" />
+          <el-option label="标准化" value="normalize" />
+          <el-option label="格式转换" value="format" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="状态">
+        <el-select v-model="searchForm.status" placeholder="全部状态" clearable style="width: 130px">
+          <el-option label="待处理" value="pending" />
+          <el-option label="处理中" value="running" />
+          <el-option label="处理成功" value="success" />
+          <el-option label="处理失败" value="failed" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="源数据集">
+        <el-select v-model="searchForm.datasetId" placeholder="全部数据集" clearable style="width: 180px">
+          <el-option
+            v-for="item in datasetOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="创建时间">
+        <el-date-picker
+          v-model="dateRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="YYYY-MM-DD"
+          style="width: 240px"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
@@ -25,8 +62,8 @@
       v-model:page="page"
       v-model:pageSize="pageSize"
     >
-      <template #processType="{ row }">
-        <el-tag>{{ processTypeMap[row.processType] }}</el-tag>
+      <template #processTypes="{ row }">
+        <el-tag v-for="t in row.processTypes" :key="t" style="margin-right:4px">{{ processTypeMap[t] }}</el-tag>
       </template>
       <template #status="{ row }">
         <StatusTag :status="row.status" type="preprocess" />
@@ -46,6 +83,7 @@ import { useRouter } from 'vue-router'
 import CommonTable from '@/components/CommonTable.vue'
 import StatusTag from '@/components/StatusTag.vue'
 import preprocessApi from '@/api/preprocess'
+import type { PreprocessParams } from '@/api/preprocess'
 
 const router = useRouter()
 
@@ -55,9 +93,16 @@ const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
 
+const datasetOptions = ref<{ id: string; name: string }[]>([])
+
 const searchForm = ref({
   keyword: '',
+  processTypes: [] as string[],
+  status: '',
+  datasetId: '',
 })
+
+const dateRange = ref<[string, string] | null>(null)
 
 const processTypeMap: Record<string, string> = {
   clean: '数据清洗',
@@ -69,9 +114,9 @@ const processTypeMap: Record<string, string> = {
 const columns = [
   { prop: 'name', label: '任务名称', minWidth: 150 },
   { prop: 'datasetName', label: '源数据集', minWidth: 150 },
-  { prop: 'processType', label: '处理方式', width: 120, slot: true },
+  { prop: 'processTypes', label: '处理方式', width: 160, slot: true },
   { prop: 'status', label: '状态', width: 120, slot: true },
-  { prop: 'version', label: '版本', width: 100 },
+  { prop: 'outputVersion', label: '输出版本', width: 100 },
   { prop: 'createdAt', label: '创建时间', width: 180 },
   { prop: 'operation', label: '操作', width: 280, slot: true },
 ]
@@ -79,11 +124,20 @@ const columns = [
 const fetchList = async () => {
   loading.value = true
   try {
-    const res = await preprocessApi.getList({
+    const params: PreprocessParams = {
       page: page.value,
       pageSize: pageSize.value,
-      keyword: searchForm.value.keyword,
-    })
+    }
+    if (searchForm.value.keyword) params.keyword = searchForm.value.keyword
+    if (searchForm.value.processTypes.length > 0) params.processTypes = searchForm.value.processTypes
+    if (searchForm.value.status) params.status = searchForm.value.status
+    if (searchForm.value.datasetId) params.datasetId = searchForm.value.datasetId
+    if (dateRange.value) {
+      params.startTime = dateRange.value[0]
+      params.endTime = dateRange.value[1]
+    }
+
+    const res = await preprocessApi.getList(params)
     tableData.value = res.list
     total.value = res.total
   } finally {
@@ -97,7 +151,8 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-  searchForm.value = { keyword: '' }
+  searchForm.value = { keyword: '', processTypes: [], status: '', datasetId: '' }
+  dateRange.value = null
   page.value = 1
   fetchList()
 }
@@ -124,14 +179,21 @@ const handleDelete = (row: any) => {
   })
 }
 
-onMounted(fetchList)
+const loadDatasetOptions = async () => {
+  try {
+    const res = await preprocessApi.getAvailableDatasets()
+    datasetOptions.value = res
+  } catch {
+    /* 选项加载失败不影响列表展示 */
+  }
+}
+
+onMounted(() => {
+  loadDatasetOptions()
+  fetchList()
+})
 </script>
 
 <style scoped>
-.search-form {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
+/* 搜索表单样式由 global.css 统一管理 */
 </style>

@@ -27,3 +27,18 @@ export const PROCESS_TYPE = {
   normalize: '标准化',
   format: '格式转换',
 } as const
+
+export const DATASOURCE_STATUS = {
+  draft: '草稿',
+  active: '启用',
+  inactive: '停用',
+  failed: '异常',
+} as const
+
+export const COLLECT_STATUS_LABEL: Record<string, string> = {
+  pending: '待采集',
+  running: '采集中',
+  success: '采集成功',
+  failed: '采集失败',
+  paused: '已暂停',
+} as const

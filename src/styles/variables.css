@@ -1,14 +1,23 @@
 :root {
-  --primary-color: #409eff;
-  --success-color: #67c23a;
-  --warning-color: #e6a23c;
-  --danger-color: #f56c6c;
-  --info-color: #909399;
-  --text-primary: #303133;
-  --text-regular: #606266;
-  --text-secondary: #909399;
-  --border-color: #dcdfe6;
-  --bg-color: #f5f7fa;
-  --sidebar-width: 220px;
-  --header-height: 60px;
+  /* ===== 科技风色板 ===== */
+  --bg: #061018;
+  --bg-2: #0a1824;
+  --panel: rgba(10, 24, 36, 0.78);
+  --panel-strong: rgba(12, 31, 46, 0.92);
+  --line: rgba(86, 190, 255, 0.18);
+  --line-strong: rgba(74, 222, 255, 0.34);
+  --text: #eaf7ff;
+  --muted: #85a8bc;
+  --primary: #37f0d6;
+  --secondary: #3d9cff;
+  --accent: #6d7dff;
+  --glow: 0 0 28px rgba(55, 240, 214, 0.24);
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+
+  /* ===== 布局变量 ===== */
+  --sidebar-width: 230px;
+  --header-height: 78px;
 }
