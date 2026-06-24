@@ -23,6 +23,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import CommonForm from '@/components/CommonForm.vue'
 import datasourceApi from '@/api/datasource'
 
@@ -40,7 +41,17 @@ const form = ref({
   status: 'active',
 })
 
-const formFields = [
+type FormFieldType = 'input' | 'number' | 'select' | 'switch' | 'textarea' | 'radio' | 'date' | 'slot'
+
+interface FormField {
+  prop: string
+  label: string
+  type: FormFieldType
+  placeholder?: string
+  options?: { label: string; value: string }[]
+}
+
+const formFields: FormField[] = [
   { prop: 'name', label: '名称', type: 'input', placeholder: '请输入数据源名称' },
   {
     prop: 'type',

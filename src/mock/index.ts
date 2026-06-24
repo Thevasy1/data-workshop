@@ -1,11 +1,16 @@
-import { MockMethod } from 'vite-plugin-mock'
+import type { MockMethod } from 'vite-plugin-mock'
+
+interface MockRequest {
+  query: Record<string, any>
+  params: Record<string, string>
+}
 
 export default [
   // 数据源列表
   {
     url: '/api/datasource/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query }: MockRequest) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `ds_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
@@ -24,7 +29,7 @@ export default [
   {
     url: '/api/datasource/detail/:id',
     method: 'get',
-    response: ({ params }) => ({
+    response: ({ params }: MockRequest) => ({
       code: 0,
       data: {
         id: params.id,
@@ -110,7 +115,7 @@ export default [
   {
     url: '/api/dataset/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query }: MockRequest) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `dt_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
@@ -213,7 +218,7 @@ export default [
   {
     url: '/api/preprocess/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query }: MockRequest) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `pp_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,

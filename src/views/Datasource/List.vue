@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import CommonTable from '@/components/CommonTable.vue'
 import StatusTag from '@/components/StatusTag.vue'
 import datasourceApi from '@/api/datasource'

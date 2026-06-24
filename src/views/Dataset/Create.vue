@@ -79,6 +79,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import datasetApi from '@/api/dataset'
 
 const router = useRouter()
