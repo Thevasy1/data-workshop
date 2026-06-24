@@ -2,7 +2,7 @@ import type { MockMethod } from 'vite-plugin-mock'
 
 interface MockRequest {
   query: Record<string, any>
-  params: Record<string, string>
+  params?: Record<string, string>
 }
 
 type DatasourceType = 'api' | 'upload' | 'database' | 'web'
@@ -103,7 +103,7 @@ export default [
     response: ({ params }: MockRequest) => ({
       code: 0,
       data: {
-        id: params.id,
+        id: params?.id || 'ds_001',
         name: '示例数据源',
         type: 'api',
         sourceUrl: 'https://api.example.com/data',
@@ -238,7 +238,7 @@ export default [
     response: ({ params }: MockRequest) => ({
       code: 0,
       data: {
-        ...getDatasetById(params.id),
+        ...getDatasetById(params?.id || 'dt_001'),
         fields: datasourceFields,
       },
       message: 'success',

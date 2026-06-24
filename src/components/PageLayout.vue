@@ -116,4 +116,31 @@ const activeMenu = computed(() => route.path)
   padding: 20px;
   overflow-y: auto;
 }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 64px !important;
+  }
+
+  .logo {
+    gap: 0;
+  }
+
+  .logo-text,
+  .menu :deep(.el-menu-item span) {
+    display: none;
+  }
+
+  .header {
+    padding: 0 12px;
+  }
+
+  .username {
+    display: none;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+}
 </style>

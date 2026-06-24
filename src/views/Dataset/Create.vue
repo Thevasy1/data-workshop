@@ -48,8 +48,8 @@
           <template v-if="datasourceType === 'api'">
             <el-form-item label="请求方式">
               <el-radio-group v-model="form.collectRules.sourceOptions.method">
-                <el-radio label="GET">GET</el-radio>
-                <el-radio label="POST">POST</el-radio>
+                <el-radio value="GET">GET</el-radio>
+                <el-radio value="POST">POST</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item v-if="form.collectRules.sourceOptions.method === 'POST'" label="请求体">
@@ -126,10 +126,10 @@
           <el-divider content-position="left">采集计划</el-divider>
           <el-form-item label="执行方式">
             <el-radio-group v-model="form.collectRules.schedule">
-              <el-radio label="manual">手动</el-radio>
-              <el-radio label="daily">每日</el-radio>
-              <el-radio label="weekly">每周</el-radio>
-              <el-radio label="cron">Cron</el-radio>
+              <el-radio value="manual">手动</el-radio>
+              <el-radio value="daily">每日</el-radio>
+              <el-radio value="weekly">每周</el-radio>
+              <el-radio value="cron">Cron</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item v-if="form.collectRules.schedule === 'cron'" label="Cron表达式">
@@ -345,7 +345,18 @@ onMounted(async () => {
 .step-actions {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 20px;
   margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .rule-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rule-row:has(> .el-input:nth-child(2):last-of-type) {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -18,12 +18,12 @@
       :sortable="col.sortable"
     >
       <template #default="scope" v-if="col.slot">
-        <slot :name="col.prop" :row="scope.row" :$index="scope.$index" />
+        <slot :name="col.prop" :row="scope.row" :index="scope.$index" />
       </template>
     </el-table-column>
     <el-table-column v-if="showOperation" label="操作" :width="operationWidth" fixed="right">
       <template #default="scope">
-        <slot name="operation" :row="scope.row" :$index="scope.$index">
+        <slot name="operation" :row="scope.row" :index="scope.$index">
           <el-button type="primary" size="small" @click="$emit('edit', scope.row)">编辑</el-button>
           <el-button type="danger" size="small" @click="$emit('delete', scope.row)">删除</el-button>
         </slot>

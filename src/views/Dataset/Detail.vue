@@ -35,7 +35,7 @@
           <StatusTag :status="detail.collectStatus" type="collect" size="large" />
         </div>
 
-        <el-descriptions :column="3" border>
+        <el-descriptions :column="descriptionColumns" border>
           <el-descriptions-item label="数据源">{{ detail.datasourceName }}</el-descriptions-item>
           <el-descriptions-item label="记录数">{{ detail.recordCount.toLocaleString() }}</el-descriptions-item>
           <el-descriptions-item label="当前版本">{{ detail.version }}</el-descriptions-item>
@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import StatusTag from '@/components/StatusTag.vue'
@@ -166,6 +166,7 @@ const datasetId = route.params.id as string
 
 const loading = ref(false)
 const activeTab = ref('samples')
+const descriptionColumns = ref(3)
 const detail = ref<DatasetDetail>()
 const fields = ref<DatasetField[]>([])
 const samples = ref<DatasetSamples>({ columns: [], rows: [] })
@@ -182,6 +183,10 @@ const scheduleMap: Record<DatasetSchedule, string> = {
   daily: '每日',
   weekly: '每周',
   cron: 'Cron',
+}
+
+const updateDescriptionColumns = () => {
+  descriptionColumns.value = window.innerWidth <= 768 ? 1 : 3
 }
 
 const sampleRows = computed(() => {
@@ -264,18 +269,28 @@ const handleRollback = (version: DatasetVersion) => {
   })
 }
 
-onMounted(fetchDetail)
+onMounted(() => {
+  updateDescriptionColumns()
+  window.addEventListener('resize', updateDescriptionColumns)
+  fetchDetail()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateDescriptionColumns)
+})
 </script>
 
 <style scoped>
 .header-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .overview-card {
   margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .overview-header {
@@ -299,6 +314,7 @@ onMounted(fetchDetail)
 
 .detail-tabs {
   margin-top: 20px;
+  overflow-x: auto;
 }
 
 .version-toolbar {
@@ -309,5 +325,19 @@ onMounted(fetchDetail)
 
 .version-toolbar .el-select {
   width: 180px;
+}
+
+@media (max-width: 768px) {
+  .overview-header {
+    flex-direction: column;
+  }
+
+  .version-toolbar {
+    flex-direction: column;
+  }
+
+  .version-toolbar .el-select {
+    width: 100%;
+  }
 }
 </style>
