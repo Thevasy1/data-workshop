@@ -8,10 +8,15 @@ export interface PreprocessTask {
   name: string
   datasetId: string
   datasetName: string
-  processType: 'clean' | 'dedup' | 'normalize' | 'format'
+  processTypes: ('clean' | 'dedup' | 'normalize' | 'format')[]
   status: 'pending' | 'running' | 'success' | 'failed'
-  version: string
+  progress?: number
+  inputVersion?: string
+  outputVersion?: string
+  inputCount?: number
+  outputCount?: number
   createdAt: string
+  finishedAt?: string
 }
 
 export const usePreprocessStore = defineStore('preprocess', () => {

@@ -12,7 +12,7 @@
         <el-input v-model="searchForm.keyword" placeholder="请输入任务名称" clearable />
       </el-form-item>
       <el-form-item label="处理方式">
-        <el-select v-model="searchForm.processType" placeholder="全部方式" clearable style="width: 130px">
+        <el-select v-model="searchForm.processTypes" multiple placeholder="全部方式" clearable collapse-tags style="width: 200px">
           <el-option label="数据清洗" value="clean" />
           <el-option label="数据去重" value="dedup" />
           <el-option label="标准化" value="normalize" />
@@ -62,8 +62,8 @@
       v-model:page="page"
       v-model:pageSize="pageSize"
     >
-      <template #processType="{ row }">
-        <el-tag>{{ processTypeMap[row.processType] }}</el-tag>
+      <template #processTypes="{ row }">
+        <el-tag v-for="t in row.processTypes" :key="t" style="margin-right:4px">{{ processTypeMap[t] }}</el-tag>
       </template>
       <template #status="{ row }">
         <StatusTag :status="row.status" type="preprocess" />
@@ -97,7 +97,7 @@ const datasetOptions = ref<{ id: string; name: string }[]>([])
 
 const searchForm = ref({
   keyword: '',
-  processType: '',
+  processTypes: [] as string[],
   status: '',
   datasetId: '',
 })
@@ -114,9 +114,9 @@ const processTypeMap: Record<string, string> = {
 const columns = [
   { prop: 'name', label: '任务名称', minWidth: 150 },
   { prop: 'datasetName', label: '源数据集', minWidth: 150 },
-  { prop: 'processType', label: '处理方式', width: 120, slot: true },
+  { prop: 'processTypes', label: '处理方式', width: 160, slot: true },
   { prop: 'status', label: '状态', width: 120, slot: true },
-  { prop: 'version', label: '版本', width: 100 },
+  { prop: 'outputVersion', label: '输出版本', width: 100 },
   { prop: 'createdAt', label: '创建时间', width: 180 },
   { prop: 'operation', label: '操作', width: 280, slot: true },
 ]
@@ -129,12 +129,12 @@ const fetchList = async () => {
       pageSize: pageSize.value,
     }
     if (searchForm.value.keyword) params.keyword = searchForm.value.keyword
-    if (searchForm.value.processType) params.processType = searchForm.value.processType
+    if (searchForm.value.processTypes.length > 0) params.processTypes = searchForm.value.processTypes
     if (searchForm.value.status) params.status = searchForm.value.status
     if (searchForm.value.datasetId) params.datasetId = searchForm.value.datasetId
     if (dateRange.value) {
-      params.startDate = dateRange.value[0]
-      params.endDate = dateRange.value[1]
+      params.startTime = dateRange.value[0]
+      params.endTime = dateRange.value[1]
     }
 
     const res = await preprocessApi.getList(params)
@@ -151,7 +151,7 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-  searchForm.value = { keyword: '', processType: '', status: '', datasetId: '' }
+  searchForm.value = { keyword: '', processTypes: [], status: '', datasetId: '' }
   dateRange.value = null
   page.value = 1
   fetchList()

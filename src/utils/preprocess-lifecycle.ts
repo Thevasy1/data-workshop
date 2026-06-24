@@ -32,8 +32,8 @@
 export interface Checkpoint {
     /** 任务 ID */
     taskId: string
-    /** 处理方式 */
-    processType: 'clean' | 'dedup' | 'normalize' | 'format'
+    /** 处理方式（支持多选） */
+    processTypes: ('clean' | 'dedup' | 'normalize' | 'format')[]
     /** 已处理的行数 */
     processedRows: number
     /** 总行数 */
