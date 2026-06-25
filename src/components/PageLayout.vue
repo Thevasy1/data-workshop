@@ -55,7 +55,12 @@ import { useRoute } from 'vue-router'
 import { UserFilled } from '@element-plus/icons-vue'
 
 const route = useRoute()
-const activeMenu = computed(() => route.path)
+const activeMenu = computed(() => {
+  if (route.path.startsWith('/datasource')) return '/datasource/list'
+  if (route.path.startsWith('/dataset')) return '/dataset/list'
+  if (route.path.startsWith('/preprocess')) return '/preprocess/list'
+  return route.path
+})
 </script>
 
 <style scoped>
@@ -68,6 +73,7 @@ const activeMenu = computed(() => route.path)
   background-color: #304156;
   display: flex;
   flex-direction: column;
+  box-shadow: 6px 0 20px rgba(31, 45, 61, 0.08);
 }
 
 .logo {
@@ -90,12 +96,23 @@ const activeMenu = computed(() => route.path)
   flex: 1;
 }
 
+.menu :deep(.el-menu-item) {
+  height: 52px;
+  margin: 6px 10px;
+  border-radius: 6px;
+}
+
+.menu :deep(.el-menu-item.is-active) {
+  background-color: rgba(64, 158, 255, 0.14);
+}
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.04);
   z-index: 1;
 }
 
@@ -112,7 +129,9 @@ const activeMenu = computed(() => route.path)
 }
 
 .main-content {
-  background-color: var(--bg-color);
+  background:
+    linear-gradient(180deg, rgba(64, 158, 255, 0.06), rgba(64, 158, 255, 0) 180px),
+    var(--bg-color);
   padding: 20px;
   overflow-y: auto;
 }

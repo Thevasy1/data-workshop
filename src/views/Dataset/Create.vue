@@ -11,7 +11,7 @@
       <el-step title="确认创建" />
     </el-steps>
 
-    <el-card>
+    <el-card class="form-card dataset-create-card">
       <div v-if="activeStep === 0">
         <el-form ref="basicFormRef" :model="form" :rules="basicRules" label-width="120px">
           <el-form-item label="选择数据源" prop="datasourceId">
@@ -19,7 +19,7 @@
               v-model="form.datasourceId"
               placeholder="请选择数据源"
               filterable
-              style="width: 420px"
+              class="dataset-basic-control"
             >
               <el-option
                 v-for="item in datasourceOptions"
@@ -30,14 +30,14 @@
             </el-select>
           </el-form-item>
           <el-form-item label="数据集名称" prop="name">
-            <el-input v-model="form.name" placeholder="请输入数据集名称" style="width: 420px" />
+            <el-input v-model="form.name" placeholder="请输入数据集名称" class="dataset-basic-control" />
           </el-form-item>
           <el-form-item label="描述">
             <el-input
               v-model="form.description"
               type="textarea"
               placeholder="请输入描述"
-              style="width: 420px"
+              class="dataset-basic-control"
             />
           </el-form-item>
         </el-form>
@@ -318,6 +318,15 @@ onMounted(async () => {
 <style scoped>
 .steps {
   margin-bottom: 30px;
+}
+
+.dataset-create-card {
+  max-width: 1080px;
+}
+
+.dataset-basic-control {
+  width: 420px;
+  max-width: 100%;
 }
 
 .rule-table {

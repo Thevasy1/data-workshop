@@ -8,7 +8,12 @@
   --text-regular: #606266;
   --text-secondary: #909399;
   --border-color: #dcdfe6;
-  --bg-color: #f5f7fa;
+  --border-light: #ebeef5;
+  --bg-color: #f3f6fb;
+  --surface-color: #fff;
+  --surface-muted: #f7f9fc;
+  --shadow-light: 0 8px 24px rgba(31, 45, 61, 0.08);
+  --radius-base: 8px;
   --sidebar-width: 220px;
   --header-height: 60px;
 }

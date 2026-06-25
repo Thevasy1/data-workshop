@@ -30,6 +30,7 @@
       :data="tableData"
       :loading="loading"
       :total="total"
+      :show-operation="false"
       v-model:page="page"
       v-model:pageSize="pageSize"
       @edit="handleEdit"
@@ -42,16 +43,18 @@
         <StatusTag :status="row.status" type="datasource" />
       </template>
       <template #operation="{ row }">
-        <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-        <el-button size="small" @click="handleConfig(row)">配置规则</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        <div class="operation-buttons">
+          <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-button size="small" @click="handleConfig(row)">配置规则</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        </div>
       </template>
     </CommonTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import CommonTable from '@/components/CommonTable.vue'
@@ -61,7 +64,7 @@ import datasourceApi from '@/api/datasource'
 const router = useRouter()
 
 const loading = ref(false)
-const tableData = ref([])
+const tableData = ref<any[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
@@ -123,8 +126,7 @@ const handleEdit = (row: any) => {
 }
 
 const handleConfig = (row: any) => {
-  // TODO: 跳转到规则配置页面
-  console.log('配置规则', row.id)
+  ElMessage.info(`数据源「${row.name}」规则配置功能待后续模块对接`)
 }
 
 const handleDelete = (row: any) => {
@@ -135,14 +137,7 @@ const handleDelete = (row: any) => {
   })
 }
 
+watch([page, pageSize], fetchList)
+
 onMounted(fetchList)
 </script>
-
-<style scoped>
-.search-form {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
-</style>

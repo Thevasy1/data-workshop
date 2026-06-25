@@ -1,35 +1,37 @@
 <template>
-  <el-table
-    v-loading="loading"
-    :data="data"
-    border
-    stripe
-    style="width: 100%"
-    @selection-change="handleSelectionChange"
-  >
-    <el-table-column v-if="showSelection" type="selection" width="55" />
-    <el-table-column
-      v-for="col in columns"
-      :key="col.prop"
-      :prop="col.prop"
-      :label="col.label"
-      :width="col.width"
-      :min-width="col.minWidth"
-      :sortable="col.sortable"
+  <div class="table-card">
+    <el-table
+      v-loading="loading"
+      :data="data"
+      border
+      stripe
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
     >
-      <template #default="scope" v-if="col.slot">
-        <slot :name="col.prop" :row="scope.row" :index="scope.$index" />
-      </template>
-    </el-table-column>
-    <el-table-column v-if="showOperation" label="操作" :width="operationWidth" fixed="right">
-      <template #default="scope">
-        <slot name="operation" :row="scope.row" :index="scope.$index">
-          <el-button type="primary" size="small" @click="$emit('edit', scope.row)">编辑</el-button>
-          <el-button type="danger" size="small" @click="$emit('delete', scope.row)">删除</el-button>
-        </slot>
-      </template>
-    </el-table-column>
-  </el-table>
+      <el-table-column v-if="showSelection" type="selection" width="55" />
+      <el-table-column
+        v-for="col in columns"
+        :key="col.prop"
+        :prop="col.prop"
+        :label="col.label"
+        :width="col.width"
+        :min-width="col.minWidth"
+        :sortable="col.sortable"
+      >
+        <template #default="scope" v-if="col.slot">
+          <slot :name="col.prop" :row="scope.row" :index="scope.$index" />
+        </template>
+      </el-table-column>
+      <el-table-column v-if="showOperation" label="操作" :width="operationWidth" fixed="right">
+        <template #default="scope">
+          <slot name="operation" :row="scope.row" :index="scope.$index">
+            <el-button type="primary" size="small" @click="$emit('edit', scope.row)">编辑</el-button>
+            <el-button type="danger" size="small" @click="$emit('delete', scope.row)">删除</el-button>
+          </slot>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 
   <div class="pagination-wrapper" v-if="showPagination">
     <el-pagination
@@ -97,6 +99,7 @@ watch(() => props.pageSize, (val) => { pageSize.value = val })
 
 const handleSizeChange = (val: number) => {
   emit('update:pageSize', val)
+  emit('update:page', 1)
 }
 
 const handleCurrentChange = (val: number) => {
@@ -113,5 +116,28 @@ const handleSelectionChange = (selection: any[]) => {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+.table-card {
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-base);
+}
+
+.table-card :deep(.el-table) {
+  --el-table-header-bg-color: #f7f9fc;
+}
+
+.table-card :deep(.el-table__header th) {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .pagination-wrapper {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
 }
 </style>

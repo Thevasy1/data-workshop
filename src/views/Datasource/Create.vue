@@ -4,7 +4,7 @@
       <span class="page-title">{{ isEdit ? '编辑数据源' : '新增数据源' }}</span>
     </div>
 
-    <el-card style="max-width: 800px">
+    <el-card class="form-card">
       <CommonForm
         ref="formRef"
         :model="form"
@@ -113,12 +113,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style scoped>
-.form-actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-</style>

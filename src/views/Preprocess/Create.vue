@@ -4,7 +4,7 @@
       <span class="page-title">新建预处理任务</span>
     </div>
 
-    <el-card style="max-width: 800px">
+    <el-card class="form-card">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
         <el-form-item label="任务名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入任务名称" />
@@ -23,10 +23,10 @@
 
         <el-form-item label="处理方式" prop="processType">
           <el-radio-group v-model="form.processType">
-            <el-radio label="clean">数据清洗</el-radio>
-            <el-radio label="dedup">数据去重</el-radio>
-            <el-radio label="normalize">标准化</el-radio>
-            <el-radio label="format">格式转换</el-radio>
+            <el-radio value="clean">数据清洗</el-radio>
+            <el-radio value="dedup">数据去重</el-radio>
+            <el-radio value="normalize">标准化</el-radio>
+            <el-radio value="format">格式转换</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -34,8 +34,8 @@
         <template v-if="form.processType === 'clean'">
           <el-form-item label="空值处理">
             <el-radio-group v-model="form.config.nullStrategy">
-              <el-radio label="delete">删除空值行</el-radio>
-              <el-radio label="fill">填充默认值</el-radio>
+              <el-radio value="delete">删除空值行</el-radio>
+              <el-radio value="fill">填充默认值</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="异常值过滤" v-if="form.config.nullStrategy === 'fill'">
@@ -54,8 +54,8 @@
           </el-form-item>
           <el-form-item label="保留策略">
             <el-radio-group v-model="form.config.keepStrategy">
-              <el-radio label="first">保留第一条</el-radio>
-              <el-radio label="last">保留最后一条</el-radio>
+              <el-radio value="first">保留第一条</el-radio>
+              <el-radio value="last">保留最后一条</el-radio>
             </el-radio-group>
           </el-form-item>
         </template>
@@ -143,12 +143,3 @@ onMounted(async () => {
   datasetOptions.value = res
 })
 </script>
-
-<style scoped>
-.form-actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-</style>

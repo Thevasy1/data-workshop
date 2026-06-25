@@ -22,6 +22,7 @@
       :data="tableData"
       :loading="loading"
       :total="total"
+      :show-operation="false"
       v-model:page="page"
       v-model:pageSize="pageSize"
     >
@@ -32,16 +33,18 @@
         <StatusTag :status="row.status" type="preprocess" />
       </template>
       <template #operation="{ row }">
-        <el-button size="small" @click="handleView(row)">查看结果</el-button>
-        <el-button size="small" @click="handleVersions(row)">版本管理</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        <div class="operation-buttons">
+          <el-button size="small" @click="handleView(row)">查看结果</el-button>
+          <el-button size="small" @click="handleVersions(row)">版本管理</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        </div>
       </template>
     </CommonTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import CommonTable from '@/components/CommonTable.vue'
@@ -51,7 +54,7 @@ import preprocessApi from '@/api/preprocess'
 const router = useRouter()
 
 const loading = ref(false)
-const tableData = ref([])
+const tableData = ref<any[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
@@ -108,13 +111,11 @@ const handleCreate = () => {
 }
 
 const handleView = (row: any) => {
-  // TODO: 查看结果
-  console.log('查看结果', row.id)
+  ElMessage.info(`预处理任务「${row.name}」结果详情待后续模块对接`)
 }
 
 const handleVersions = (row: any) => {
-  // TODO: 版本管理
-  console.log('版本管理', row.id)
+  ElMessage.info(`预处理任务「${row.name}」版本管理待后续模块对接`)
 }
 
 const handleDelete = (row: any) => {
@@ -125,14 +126,7 @@ const handleDelete = (row: any) => {
   })
 }
 
+watch([page, pageSize], fetchList)
+
 onMounted(fetchList)
 </script>
-
-<style scoped>
-.search-form {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
-</style>

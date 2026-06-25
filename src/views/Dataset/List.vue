@@ -75,23 +75,25 @@
         </el-tag>
       </template>
       <template #operation="{ row }">
-        <el-button size="small" @click="handleDetail(row)">详情</el-button>
-        <el-button
-          v-if="row.collectStatus === 'pending' || row.collectStatus === 'paused'"
-          type="primary"
-          size="small"
-          @click="handleStart(row)"
-        >
-          启动
-        </el-button>
-        <el-button v-if="row.collectStatus === 'running'" size="small" @click="handlePause(row)">
-          暂停
-        </el-button>
-        <el-button v-if="row.collectStatus === 'failed'" type="warning" size="small" @click="handleRetry(row)">
-          重试
-        </el-button>
-        <el-button size="small" @click="handleLogs(row)">日志</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        <div class="operation-buttons">
+          <el-button size="small" @click="handleDetail(row)">详情</el-button>
+          <el-button
+            v-if="row.collectStatus === 'pending' || row.collectStatus === 'paused'"
+            type="primary"
+            size="small"
+            @click="handleStart(row)"
+          >
+            启动
+          </el-button>
+          <el-button v-if="row.collectStatus === 'running'" size="small" @click="handlePause(row)">
+            暂停
+          </el-button>
+          <el-button v-if="row.collectStatus === 'failed'" type="warning" size="small" @click="handleRetry(row)">
+            重试
+          </el-button>
+          <el-button size="small" @click="handleLogs(row)">日志</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        </div>
       </template>
     </CommonTable>
 
@@ -249,17 +251,3 @@ onMounted(async () => {
   await fetchList()
 })
 </script>
-
-<style scoped>
-.search-form {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
-
-.search-form :deep(.el-input),
-.search-form :deep(.el-select) {
-  width: 200px;
-}
-</style>
