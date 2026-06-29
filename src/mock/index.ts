@@ -17,7 +17,11 @@ export default [
         createdAt: '2026-06-15T10:00:00Z',
         updatedAt: '2026-06-18T14:30:00Z',
       }))
-      return { code: 0, data: { list, total: 100, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
+      return {
+        code: 0,
+        data: { list, total: 100, page: Number(page), pageSize: Number(pageSize) },
+        message: 'success',
+      }
     },
   },
   // 数据源详情
@@ -68,9 +72,7 @@ export default [
           { source: 'user_id', target: '用户ID' },
           { source: 'name', target: '用户名' },
         ],
-        filters: [
-          { field: 'age', operator: '>', value: '18' },
-        ],
+        filters: [{ field: 'age', operator: '>', value: '18' }],
         schedule: 'daily',
         cron: '0 0 * * *',
       },
@@ -122,7 +124,11 @@ export default [
         recordCount: [0, 23000, 50000, 0, 15000][i % 5],
         createdAt: '2026-06-16T09:00:00Z',
       }))
-      return { code: 0, data: { list, total: 50, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
+      return {
+        code: 0,
+        data: { list, total: 50, page: Number(page), pageSize: Number(pageSize) },
+        message: 'success',
+      }
     },
   },
   // 可选数据源
@@ -225,7 +231,11 @@ export default [
         version: `v${i + 2}`,
         createdAt: '2026-06-18T11:00:00Z',
       }))
-      return { code: 0, data: { list, total: 30, page: Number(page), pageSize: Number(pageSize) }, message: 'success' }
+      return {
+        code: 0,
+        data: { list, total: 30, page: Number(page), pageSize: Number(pageSize) },
+        message: 'success',
+      }
     },
   },
   // 可用数据集
@@ -253,7 +263,13 @@ export default [
     method: 'get',
     response: () => ({
       code: 0,
-      data: { id: 'pp_001', name: '清洗任务', datasetId: 'dt_001', processType: 'clean', status: 'success' },
+      data: {
+        id: 'pp_001',
+        name: '清洗任务',
+        datasetId: 'dt_001',
+        processType: 'clean',
+        status: 'success',
+      },
       message: 'success',
     }),
   },
@@ -311,5 +327,94 @@ export default [
     url: '/api/preprocess/:id/export',
     method: 'get',
     response: () => ({ code: 0, data: '模拟下载链接', message: 'success' }),
+  },
+
+  // 数据工坊首页
+  {
+    url: '/api/dashboard/stats',
+    method: 'get',
+    response: () => ({
+      code: 0,
+      data: {
+        datasourceCount: 25,
+        datasetCount: 18,
+        preprocessCount: 12,
+        todayTaskCount: 5,
+        successRate: 92.5,
+        failedTaskCount: 2,
+      },
+      message: 'success',
+    }),
+  },
+  {
+    url: '/api/dashboard/trend',
+    method: 'get',
+    response: () => ({
+      code: 0,
+      data: {
+        dates: ['06-15', '06-16', '06-17', '06-18', '06-19', '06-20'],
+        datasetCreated: [3, 5, 2, 8, 4, 6],
+        preprocessCompleted: [1, 3, 2, 5, 3, 4],
+      },
+      message: 'success',
+    }),
+  },
+  {
+    url: '/api/dashboard/distribution',
+    method: 'get',
+    response: () => ({
+      code: 0,
+      data: {
+        datasourceTypeStats: [
+          { type: 'api', count: 8 },
+          { type: 'upload', count: 6 },
+          { type: 'database', count: 5 },
+          { type: 'web', count: 6 },
+        ],
+        datasetStatusStats: [
+          { status: 'success', count: 12 },
+          { status: 'running', count: 4 },
+          { status: 'failed', count: 2 },
+        ],
+        preprocessStatusStats: [
+          { status: 'pending', count: 2 },
+          { status: 'running', count: 3 },
+          { status: 'success', count: 10 },
+          { status: 'failed', count: 1 },
+        ],
+      },
+      message: 'success',
+    }),
+  },
+  {
+    url: '/api/dashboard/recent-tasks',
+    method: 'get',
+    response: () => ({
+      code: 0,
+      data: [
+        {
+          id: 'pp_005',
+          name: '用户数据去重',
+          type: 'preprocess',
+          status: 'running',
+          createdAt: '2026-06-20T14:00:00Z',
+        },
+        {
+          id: 'dt_003',
+          name: '订单数据集创建',
+          type: 'dataset',
+          status: 'success',
+          createdAt: '2026-06-20T10:00:00Z',
+        },
+        {
+          id: 'pp_008',
+          name: '文本清洗任务',
+          type: 'preprocess',
+          status: 'success',
+          createdAt: '2026-06-21T09:30:00Z',
+        },
+      ],
+      message: 'success',
+    }),
   },
 ] as MockMethod[]

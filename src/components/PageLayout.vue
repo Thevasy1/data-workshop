@@ -13,6 +13,10 @@
         text-color="#bfcbd9"
         active-text-color="#409EFF"
       >
+        <el-menu-item index="/dashboard">
+          <el-icon><DataAnalysis /></el-icon>
+          <span>模块概览</span>
+        </el-menu-item>
         <el-menu-item index="/datasource/list">
           <el-icon><Collection /></el-icon>
           <span>数据源管理</span>
@@ -52,7 +56,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { UserFilled } from '@element-plus/icons-vue'
+import { UserFilled, DataAnalysis, Collection, Document, Tools } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const activeMenu = computed(() => route.path)
@@ -113,7 +117,7 @@ const activeMenu = computed(() => route.path)
 
 .main-content {
   background-color: var(--bg-color);
-  padding: 20px;
+  padding: 0;
   overflow-y: auto;
 }
 </style>

@@ -7,12 +7,18 @@ const router = createRouter({
     {
       path: '/',
       component: PageLayout,
-      redirect: '/datasource/list',
+      redirect: '/dashboard',
       children: [
         {
           path: '/datasource',
           redirect: '/datasource/list',
           children: [
+            {
+              path: '/dashboard',
+              name: 'Dashboard',
+              component: () => import('@/views/Dashboard/index.vue'),
+              meta: { title: '模块概览' },
+            },
             {
               path: 'list',
               name: 'DatasourceList',

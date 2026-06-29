@@ -1,6 +1,7 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
+import { ElMessage } from 'element-plus'
 
-const request = axios.create({
+const instance = axios.create({
   baseURL: '/api',
   timeout: 10000,
   headers: {
@@ -9,9 +10,8 @@ const request = axios.create({
 })
 
 // 请求拦截器
-request.interceptors.request.use(
+instance.interceptors.request.use(
   (config) => {
-    // 可在此添加 token 等统一请求头
     return config
   },
   (error) => {
@@ -19,8 +19,8 @@ request.interceptors.request.use(
   }
 )
 
-// 响应拦截器
-request.interceptors.response.use(
+// 响应拦截器 — 直接返回 data
+instance.interceptors.response.use(
   (response) => {
     const { code, data, message } = response.data
     if (code !== 0) {
@@ -34,5 +34,24 @@ request.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// 覆盖方法类型，使其返回 Promise<T> 而不是 Promise<AxiosResponse<T>>
+const request = {
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+    return instance.get(url, config) as Promise<T>
+  },
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+    return instance.post(url, data, config) as Promise<T>
+  },
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+    return instance.put(url, data, config) as Promise<T>
+  },
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+    return instance.delete(url, config) as Promise<T>
+  },
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+    return instance.patch(url, data, config) as Promise<T>
+  },
+}
 
 export default request
