@@ -4,23 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="数据预处理结果">
+    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="初版汇总">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/dataset.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/dataset.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/datasource.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/datasource.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/preprocess.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/preprocess.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/PageLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PageLayout.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/StatusTag.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StatusTag.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/mock/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/mock/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/styles/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/global.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/styles/variables.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/variables.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Dataset/Create.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Dataset/Create.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Dataset/List.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Dataset/List.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Datasource/Create.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Datasource/Create.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Datasource/List.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Datasource/List.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Preprocess/Create.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Preprocess/Create.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Preprocess/List.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Preprocess/List.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,29 +48,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "final",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "npm.dev.executor": "Run",
-    "prettierjs.PrettierConfiguration.Package": "E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\prettier",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.postfix.templates",
-    "ts.external.directory.path": "E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;final&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.postfix.templates&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />

@@ -10,7 +10,7 @@ export default defineConfig({
     viteMockServe({
       mockPath: './src/mock',
       localEnabled: true,
-      prodEnabled: false,
+      prodEnabled: true,
     }),
   ],
   resolve: {

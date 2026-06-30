@@ -471,9 +471,41 @@ const paginate = <T>(list: T[], query: Query = {}) => {
   }
 }
 
-const getDatasetById = (id?: string) => datasets.find((item) => item.id === id)
-const getDatasourceById = (id?: string) => datasources.find((item) => item.id === id)
-const getPreprocessById = (id?: string) => preprocessTasks.find((item) => item.id === id)
+const normalizeId = (id?: string) => (id || '').trim()
+
+const resolveAliasId = (id: string, prefix: 'ds' | 'dt' | 'pp', total: number) => {
+  const numericMatch = id.match(/(\d+)/)
+  if (!numericMatch) return ''
+  const index = Number(numericMatch[1])
+  if (!index || index > total) return ''
+  return `${prefix}_${String(index).padStart(3, '0')}`
+}
+
+const findById = <T extends { id: string }>(list: T[], rawId?: string, prefix?: 'ds' | 'dt' | 'pp') => {
+  const id = normalizeId(rawId)
+  if (!id) return list[0]
+
+  const exact = list.find((item) => item.id === id)
+  if (exact) return exact
+
+  const normalized = id.toLowerCase()
+  const suffixMatched = list.find((item) => item.id.toLowerCase().endsWith(normalized))
+  if (suffixMatched) return suffixMatched
+
+  if (prefix) {
+    const aliasId = resolveAliasId(id, prefix, list.length)
+    if (aliasId) {
+      const aliasMatched = list.find((item) => item.id === aliasId)
+      if (aliasMatched) return aliasMatched
+    }
+  }
+
+  return list[0]
+}
+
+const getDatasetById = (id?: string) => findById(datasets, id, 'dt')
+const getDatasourceById = (id?: string) => findById(datasources, id, 'ds')
+const getPreprocessById = (id?: string) => findById(preprocessTasks, id, 'pp')
 
 const filterDatasources = (query: Query = {}) =>
   datasources.filter((item) => {

@@ -7,6 +7,12 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 
+async function bootstrap() {
+  if (import.meta.env.PROD) {
+    const { setupProdMockServer } = await import('../mockProdServer')
+    await setupProdMockServer()
+  }
+
 const app = createApp(App)
 
 // 注册所有 Element Plus 图标
@@ -19,3 +25,6 @@ app.use(router)
 app.use(ElementPlus)
 
 app.mount('#app')
+}
+
+bootstrap()
