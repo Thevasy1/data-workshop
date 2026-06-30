@@ -4,17 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="初版汇总">
+    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="二版汇总">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mock/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/mock/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/styles/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/global.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="100" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -110,6 +109,7 @@
       <workItem from="1782464467150" duration="3385000" />
       <workItem from="1782798042607" duration="7238000" />
       <workItem from="1782816422529" duration="4140000" />
+      <workItem from="1782824318453" duration="383000" />
     </task>
     <task id="LOCAL-00001" summary="结果列表">
       <option name="closed" value="true" />
@@ -151,7 +151,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782816551133</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="二版汇总">
+      <option name="closed" value="true" />
+      <created>1782824354912</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1782824354912</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,6 +168,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="结果列表" />
     <MESSAGE value="数据预处理结果" />
-    <option name="LAST_COMMIT_MESSAGE" value="数据预处理结果" />
+    <MESSAGE value="二版汇总" />
+    <option name="LAST_COMMIT_MESSAGE" value="二版汇总" />
   </component>
 </project>
