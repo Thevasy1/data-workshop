@@ -3,7 +3,8 @@
     <div class="page-header">
       <span class="page-title">预处理任务</span>
       <el-button type="primary" @click="handleCreate">
-        <el-icon><Plus /></el-icon>新建预处理
+        <el-icon><Plus /></el-icon>
+        新建预处理
       </el-button>
     </div>
 
@@ -22,11 +23,12 @@
       :data="tableData"
       :loading="loading"
       :total="total"
+      :operation-width="280"
       v-model:page="page"
       v-model:pageSize="pageSize"
     >
       <template #processType="{ row }">
-        <el-tag>{{ processTypeMap[row.processType] }}</el-tag>
+        <el-tag>{{ processTypeMap[row.processType] || row.processType }}</el-tag>
       </template>
       <template #status="{ row }">
         <StatusTag :status="row.status" type="preprocess" />
@@ -41,39 +43,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import CommonTable from '@/components/CommonTable.vue'
+import type { TableColumn } from '@/components/CommonTable.vue'
 import StatusTag from '@/components/StatusTag.vue'
 import preprocessApi from '@/api/preprocess'
+import type { PreprocessTaskItem } from '@/api/preprocess'
+import { PROCESS_TYPE } from '@/utils/constants'
 
 const router = useRouter()
-
 const loading = ref(false)
-const tableData = ref([])
+const tableData = ref<PreprocessTaskItem[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
+const searchForm = ref({ keyword: '' })
+const processTypeMap: Record<string, string> = PROCESS_TYPE
 
-const searchForm = ref({
-  keyword: '',
-})
-
-const processTypeMap: Record<string, string> = {
-  clean: '数据清洗',
-  dedup: '数据去重',
-  normalize: '标准化',
-  format: '格式转换',
-}
-
-const columns = [
+const columns: TableColumn[] = [
   { prop: 'name', label: '任务名称', minWidth: 150 },
   { prop: 'datasetName', label: '源数据集', minWidth: 150 },
   { prop: 'processType', label: '处理方式', width: 120, slot: true },
   { prop: 'status', label: '状态', width: 120, slot: true },
   { prop: 'version', label: '版本', width: 100 },
   { prop: 'createdAt', label: '创建时间', width: 180 },
-  { prop: 'operation', label: '操作', width: 280, slot: true },
 ]
 
 const fetchList = async () => {
@@ -91,39 +86,46 @@ const fetchList = async () => {
   }
 }
 
-const handleSearch = () => {
+const reloadFromFirstPage = () => {
+  if (page.value === 1) {
+    fetchList()
+    return
+  }
   page.value = 1
-  fetchList()
 }
+
+const handleSearch = () => reloadFromFirstPage()
 
 const handleReset = () => {
   searchForm.value = { keyword: '' }
-  page.value = 1
-  fetchList()
+  reloadFromFirstPage()
 }
 
 const handleCreate = () => {
   router.push('/preprocess/create')
 }
 
-const handleView = (row: any) => {
-  // TODO: 查看结果
-  console.log('查看结果', row.id)
+const handleView = (row: PreprocessTaskItem) => {
+  ElMessage.info(`查看 ${row.name} 的处理结果`)
 }
 
-const handleVersions = (row: any) => {
-  // TODO: 版本管理
-  console.log('版本管理', row.id)
+const handleVersions = (row: PreprocessTaskItem) => {
+  ElMessage.info(`管理 ${row.name} 的版本`)
 }
 
-const handleDelete = (row: any) => {
-  ElMessageBox.confirm('确认删除该预处理任务？', '提示', { type: 'warning' }).then(async () => {
-    // TODO: 调用删除接口
+const handleDelete = async (row: PreprocessTaskItem) => {
+  try {
+    await ElMessageBox.confirm(`确认删除预处理任务“${row.name}”吗？`, '提示', { type: 'warning' })
     ElMessage.success('删除成功')
     fetchList()
-  })
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      throw error
+    }
+  }
 }
 
+watch([page, pageSize], fetchList)
 onMounted(fetchList)
 </script>
 

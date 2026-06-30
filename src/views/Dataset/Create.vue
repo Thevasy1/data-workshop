@@ -11,38 +11,29 @@
     </el-steps>
 
     <el-card>
-      <!-- Step 1: 选择数据源 -->
-      <div v-if="activeStep === 0">
-        <el-form :model="form" label-width="120px">
-          <el-form-item label="选择数据源" prop="datasourceId" required>
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+        <template v-if="activeStep === 0">
+          <el-form-item label="选择数据源" prop="datasourceId">
             <el-select v-model="form.datasourceId" placeholder="请选择数据源" style="width: 400px">
-              <el-option
-                v-for="item in datasourceOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+              <el-option v-for="item in datasourceOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
-          <el-form-item label="数据集名称" prop="name" required>
+          <el-form-item label="数据集名称" prop="name">
             <el-input v-model="form.name" placeholder="请输入数据集名称" style="width: 400px" />
           </el-form-item>
           <el-form-item label="描述">
             <el-input v-model="form.description" type="textarea" placeholder="请输入描述" style="width: 400px" />
           </el-form-item>
-        </el-form>
-      </div>
+        </template>
 
-      <!-- Step 2: 配置参数（简化版） -->
-      <div v-if="activeStep === 1">
-        <el-form :model="form.config" label-width="120px">
+        <template v-if="activeStep === 1">
           <el-form-item label="请求方式" v-if="datasourceType === 'api'">
             <el-radio-group v-model="form.config.method">
               <el-radio label="GET">GET</el-radio>
               <el-radio label="POST">POST</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="SQL语句" v-if="datasourceType === 'database'">
+          <el-form-item label="SQL 语句" v-if="datasourceType === 'database'">
             <el-input v-model="form.config.sql" type="textarea" placeholder="SELECT * FROM table" />
           </el-form-item>
           <el-form-item label="文件格式" v-if="datasourceType === 'upload'">
@@ -52,13 +43,12 @@
               <el-option label="JSON" value="json" />
             </el-select>
           </el-form-item>
-          <el-form-item label="抓取URL" v-if="datasourceType === 'web'">
-            <el-input v-model="form.config.url" placeholder="请输入要抓取的页面URL" />
+          <el-form-item label="抓取 URL" v-if="datasourceType === 'web'">
+            <el-input v-model="form.config.url" placeholder="请输入要抓取的页面 URL" />
           </el-form-item>
-        </el-form>
-      </div>
+        </template>
+      </el-form>
 
-      <!-- Step 3: 确认 -->
       <div v-if="activeStep === 2">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="数据集名称">{{ form.name }}</el-descriptions-item>
@@ -69,7 +59,7 @@
 
       <div class="step-actions">
         <el-button v-if="activeStep > 0" @click="activeStep--">上一步</el-button>
-        <el-button v-if="activeStep < 2" type="primary" @click="activeStep++">下一步</el-button>
+        <el-button v-if="activeStep < 2" type="primary" @click="handleNext">下一步</el-button>
         <el-button v-if="activeStep === 2" type="primary" @click="handleSubmit">确认创建</el-button>
       </div>
     </el-card>
@@ -77,13 +67,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { useRouter } from 'vue-router'
 import datasetApi from '@/api/dataset'
+import type { DatasourceOption } from '@/api/dataset'
 
 const router = useRouter()
 const activeStep = ref(0)
-const datasourceOptions = ref<{ id: string; name: string }[]>([])
+const formRef = ref<FormInstance>()
+const datasourceOptions = ref<DatasourceOption[]>([])
 
 const form = ref({
   datasourceId: '',
@@ -97,29 +91,31 @@ const form = ref({
   },
 })
 
-const selectedDatasourceName = computed(() => {
-  const item = datasourceOptions.value.find((d) => d.id === form.value.datasourceId)
-  return item?.name || ''
-})
+const rules: FormRules = {
+  datasourceId: [{ required: true, message: '请选择数据源', trigger: 'change' }],
+  name: [{ required: true, message: '请输入数据集名称', trigger: 'blur' }],
+}
 
-const datasourceType = computed(() => {
-  // 模拟根据数据源ID获取类型，实际应根据选中数据源获取
-  return 'api'
-})
+const selectedDatasource = computed(() => datasourceOptions.value.find((item) => item.id === form.value.datasourceId))
+const selectedDatasourceName = computed(() => selectedDatasource.value?.name || '')
+const datasourceType = computed(() => selectedDatasource.value?.type || 'api')
+
+const handleNext = async () => {
+  if (activeStep.value === 0) {
+    const valid = await formRef.value?.validate()
+    if (!valid) return
+  }
+  activeStep.value += 1
+}
 
 const handleSubmit = async () => {
-  try {
-    await datasetApi.create(form.value)
-    ElMessage.success('创建成功')
-    router.push('/dataset/list')
-  } catch (e) {
-    console.error(e)
-  }
+  await datasetApi.create(form.value)
+  ElMessage.success('创建成功')
+  router.push('/dataset/list')
 }
 
 onMounted(async () => {
-  const res = await datasetApi.getDatasourceOptions()
-  datasourceOptions.value = res
+  datasourceOptions.value = await datasetApi.getDatasourceOptions()
 })
 </script>
 

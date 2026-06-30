@@ -8,6 +8,7 @@
     @selection-change="handleSelectionChange"
   >
     <el-table-column v-if="showSelection" type="selection" width="55" />
+
     <el-table-column
       v-for="col in columns"
       :key="col.prop"
@@ -17,10 +18,11 @@
       :min-width="col.minWidth"
       :sortable="col.sortable"
     >
-      <template #default="scope" v-if="col.slot">
+      <template v-if="col.slot" #default="scope">
         <slot :name="col.prop" :row="scope.row" :$index="scope.$index" />
       </template>
     </el-table-column>
+
     <el-table-column v-if="showOperation" label="操作" :width="operationWidth" fixed="right">
       <template #default="scope">
         <slot name="operation" :row="scope.row" :$index="scope.$index">
@@ -31,10 +33,10 @@
     </el-table-column>
   </el-table>
 
-  <div class="pagination-wrapper" v-if="showPagination">
+  <div v-if="showPagination" class="pagination-wrapper">
     <el-pagination
       v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
+      v-model:page-size="currentPageSize"
       :page-sizes="[10, 20, 50, 100]"
       :total="total"
       layout="total, sizes, prev, pager, next, jumper"
@@ -47,7 +49,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-interface Column {
+export interface TableColumn {
   prop: string
   label: string
   width?: string | number
@@ -58,7 +60,7 @@ interface Column {
 
 const props = withDefaults(
   defineProps<{
-    columns: Column[]
+    columns: TableColumn[]
     data: any[]
     loading?: boolean
     total?: number
@@ -90,10 +92,21 @@ const emit = defineEmits<{
 }>()
 
 const currentPage = ref(props.page)
-const pageSize = ref(props.pageSize)
+const currentPageSize = ref(props.pageSize)
 
-watch(() => props.page, (val) => { currentPage.value = val })
-watch(() => props.pageSize, (val) => { pageSize.value = val })
+watch(
+  () => props.page,
+  (val) => {
+    currentPage.value = val
+  }
+)
+
+watch(
+  () => props.pageSize,
+  (val) => {
+    currentPageSize.value = val
+  }
+)
 
 const handleSizeChange = (val: number) => {
   emit('update:pageSize', val)

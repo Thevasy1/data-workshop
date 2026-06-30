@@ -5,13 +5,7 @@
     </div>
 
     <el-card style="max-width: 800px">
-      <CommonForm
-        ref="formRef"
-        :model="form"
-        :fields="formFields"
-        :rules="rules"
-        label-width="120px"
-      />
+      <CommonForm ref="formRef" :model="form" :fields="formFields" :rules="rules" label-width="120px" />
       <div class="form-actions">
         <el-button type="primary" @click="handleSubmit">保存</el-button>
         <el-button @click="handleCancel">取消</el-button>
@@ -21,26 +15,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import CommonForm from '@/components/CommonForm.vue'
+import type { FormField } from '@/components/CommonForm.vue'
 import datasourceApi from '@/api/datasource'
 
 const route = useRoute()
 const router = useRouter()
-const formRef = ref()
+const formRef = ref<{ validate: () => Promise<boolean> }>()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => Boolean(route.params.id))
 
-const form = ref({
+const form = ref<Record<string, unknown>>({
   name: '',
   type: 'api',
-  sourceUrl: '',
   description: '',
   status: 'active',
 })
 
-const formFields = [
+const formFields: FormField[] = [
   { prop: 'name', label: '名称', type: 'input', placeholder: '请输入数据源名称' },
   {
     prop: 'type',
@@ -48,13 +43,12 @@ const formFields = [
     type: 'select',
     placeholder: '请选择数据源类型',
     options: [
-      { label: 'API接口', value: 'api' },
+      { label: 'API 接口', value: 'api' },
       { label: '本地上传', value: 'upload' },
       { label: '数据库', value: 'database' },
-      { label: 'Web页面抓取', value: 'web' },
+      { label: 'Web 页面抓取', value: 'web' },
     ],
   },
-  { prop: 'sourceUrl', label: '来源地址', type: 'input', placeholder: '请输入来源地址或上传文件' },
   { prop: 'description', label: '描述', type: 'textarea', placeholder: '请输入描述' },
   {
     prop: 'status',
@@ -70,25 +64,20 @@ const formFields = [
 const rules = {
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
   type: [{ required: true, message: '请选择类型', trigger: 'change' }],
-  sourceUrl: [{ required: true, message: '请输入来源地址', trigger: 'blur' }],
 }
 
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate()
   if (!valid) return
 
-  try {
-    if (isEdit.value) {
-      await datasourceApi.update(route.params.id as string, form.value)
-      ElMessage.success('更新成功')
-    } else {
-      await datasourceApi.create(form.value)
-      ElMessage.success('创建成功')
-    }
-    router.push('/datasource/list')
-  } catch (e) {
-    console.error(e)
+  if (isEdit.value) {
+    await datasourceApi.update(String(route.params.id), form.value)
+    ElMessage.success('更新成功')
+  } else {
+    await datasourceApi.create(form.value)
+    ElMessage.success('创建成功')
   }
+  router.push('/datasource/list')
 }
 
 const handleCancel = () => {
@@ -96,9 +85,14 @@ const handleCancel = () => {
 }
 
 onMounted(async () => {
-  if (isEdit.value) {
-    const res = await datasourceApi.getDetail(route.params.id as string)
-    form.value = { ...form.value, ...res }
+  if (!isEdit.value) return
+
+  const res = await datasourceApi.getDetail(String(route.params.id))
+  form.value = {
+    name: res.name,
+    type: res.type,
+    description: res.description,
+    status: res.status,
   }
 })
 </script>

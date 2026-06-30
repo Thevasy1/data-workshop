@@ -12,12 +12,7 @@
 
         <el-form-item label="源数据集" prop="datasetId">
           <el-select v-model="form.datasetId" placeholder="请选择数据集" style="width: 100%">
-            <el-option
-              v-for="item in datasetOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
+            <el-option v-for="item in datasetOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
 
@@ -30,7 +25,6 @@
           </el-radio-group>
         </el-form-item>
 
-        <!-- 清洗配置 -->
         <template v-if="form.processType === 'clean'">
           <el-form-item label="空值处理">
             <el-radio-group v-model="form.config.nullStrategy">
@@ -38,16 +32,15 @@
               <el-radio label="fill">填充默认值</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="异常值过滤" v-if="form.config.nullStrategy === 'fill'">
+          <el-form-item label="异常值过滤">
             <el-switch v-model="form.config.filterOutlier" />
           </el-form-item>
         </template>
 
-        <!-- 去重配置 -->
         <template v-if="form.processType === 'dedup'">
           <el-form-item label="去重字段">
             <el-select v-model="form.config.dedupFields" multiple placeholder="请选择去重字段" style="width: 100%">
-              <el-option label="用户ID" value="user_id" />
+              <el-option label="用户 ID" value="user_id" />
               <el-option label="手机号" value="phone" />
               <el-option label="邮箱" value="email" />
             </el-select>
@@ -60,7 +53,6 @@
           </el-form-item>
         </template>
 
-        <!-- 标准化配置 -->
         <template v-if="form.processType === 'normalize'">
           <el-form-item label="标准化方式">
             <el-select v-model="form.config.normalizeMethod" placeholder="请选择标准化方式" style="width: 100%">
@@ -70,7 +62,6 @@
           </el-form-item>
         </template>
 
-        <!-- 格式转换配置 -->
         <template v-if="form.processType === 'format'">
           <el-form-item label="目标格式">
             <el-select v-model="form.config.targetFormat" placeholder="请选择目标格式" style="width: 100%">
@@ -91,14 +82,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { useRouter } from 'vue-router'
 import preprocessApi from '@/api/preprocess'
+import type { AvailableDataset } from '@/api/preprocess'
 
 const router = useRouter()
-const formRef = ref()
-
-const datasetOptions = ref<{ id: string; name: string }[]>([])
+const formRef = ref<FormInstance>()
+const datasetOptions = ref<AvailableDataset[]>([])
 
 const form = ref({
   name: '',
@@ -107,14 +100,14 @@ const form = ref({
   config: {
     nullStrategy: 'delete',
     filterOutlier: false,
-    dedupFields: [],
+    dedupFields: [] as string[],
     keepStrategy: 'first',
     normalizeMethod: 'zscore',
     targetFormat: 'csv',
   },
 })
 
-const rules = {
+const rules: FormRules = {
   name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
   datasetId: [{ required: true, message: '请选择源数据集', trigger: 'change' }],
   processType: [{ required: true, message: '请选择处理方式', trigger: 'change' }],
@@ -124,13 +117,9 @@ const handleSubmit = async () => {
   const valid = await formRef.value?.validate()
   if (!valid) return
 
-  try {
-    await preprocessApi.create(form.value)
-    ElMessage.success('创建成功')
-    router.push('/preprocess/list')
-  } catch (e) {
-    console.error(e)
-  }
+  await preprocessApi.create(form.value)
+  ElMessage.success('创建成功')
+  router.push('/preprocess/list')
 }
 
 const handleCancel = () => {
@@ -138,8 +127,7 @@ const handleCancel = () => {
 }
 
 onMounted(async () => {
-  const res = await preprocessApi.getAvailableDatasets()
-  datasetOptions.value = res
+  datasetOptions.value = await preprocessApi.getAvailableDatasets()
 })
 </script>
 

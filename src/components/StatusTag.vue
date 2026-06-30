@@ -7,6 +7,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+type TagType = 'success' | 'warning' | 'danger' | 'info' | 'primary'
+
 const props = withDefaults(
   defineProps<{
     status: string
@@ -19,7 +21,7 @@ const props = withDefaults(
   }
 )
 
-const statusMap: Record<string, Record<string, { label: string; type: any }>> = {
+const statusMap: Record<string, Record<string, { label: string; type: TagType }>> = {
   collect: {
     pending: { label: '待采集', type: 'info' },
     running: { label: '采集中', type: 'warning' },
@@ -34,8 +36,10 @@ const statusMap: Record<string, Record<string, { label: string; type: any }>> = 
     failed: { label: '处理失败', type: 'danger' },
   },
   datasource: {
+    draft: { label: '草稿', type: 'info' },
     active: { label: '启用', type: 'success' },
     inactive: { label: '停用', type: 'info' },
+    failed: { label: '异常', type: 'danger' },
   },
 }
 

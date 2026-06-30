@@ -5,6 +5,7 @@
         <el-icon :size="28"><DataAnalysis /></el-icon>
         <span class="logo-text">数据工坊</span>
       </div>
+
       <el-menu
         :default-active="activeMenu"
         router
@@ -30,12 +31,11 @@
 
     <el-container>
       <el-header class="header">
-        <div class="breadcrumb">
-          <el-breadcrumb>
-            <el-breadcrumb-item>首页</el-breadcrumb-item>
-            <el-breadcrumb-item v-if="route.meta.title">{{ route.meta.title }}</el-breadcrumb-item>
-          </el-breadcrumb>
-        </div>
+        <el-breadcrumb>
+          <el-breadcrumb-item>首页</el-breadcrumb-item>
+          <el-breadcrumb-item v-if="route.meta.title">{{ route.meta.title }}</el-breadcrumb-item>
+        </el-breadcrumb>
+
         <div class="user-info">
           <el-avatar :size="32" :icon="UserFilled" />
           <span class="username">管理员</span>
@@ -51,11 +51,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { UserFilled } from '@element-plus/icons-vue'
 
 const route = useRoute()
-const activeMenu = computed(() => route.path)
+
+const activeMenu = computed(() => {
+  if (route.path.startsWith('/datasource')) return '/datasource/list'
+  if (route.path.startsWith('/dataset')) return '/dataset/list'
+  if (route.path.startsWith('/preprocess')) return '/preprocess/list'
+  return route.path
+})
 </script>
 
 <style scoped>
@@ -97,10 +103,6 @@ const activeMenu = computed(() => route.path)
   background-color: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   z-index: 1;
-}
-
-.breadcrumb {
-  font-size: 14px;
 }
 
 .user-info {

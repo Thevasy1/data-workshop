@@ -20,6 +20,12 @@ const router = createRouter({
               meta: { title: '数据源列表' },
             },
             {
+              path: 'detail/:id',
+              name: 'DatasourceDetail',
+              component: () => import('@/views/Datasource/Detail.vue'),
+              meta: { title: '数据源详情' },
+            },
+            {
               path: 'create',
               name: 'DatasourceCreate',
               component: () => import('@/views/Datasource/Create.vue'),

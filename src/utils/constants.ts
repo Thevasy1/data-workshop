@@ -1,4 +1,3 @@
-// 统一状态枚举
 export const COLLECT_STATUS = {
   pending: { label: '待采集', type: 'info' },
   running: { label: '采集中', type: 'warning' },
@@ -15,10 +14,10 @@ export const PREPROCESS_STATUS = {
 } as const
 
 export const DATASOURCE_TYPE = {
-  api: 'API接口',
+  api: 'API 接口',
   upload: '本地上传',
   database: '数据库',
-  web: 'Web页面抓取',
+  web: 'Web 页面抓取',
 } as const
 
 export const PROCESS_TYPE = {
