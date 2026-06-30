@@ -2,43 +2,55 @@
   <el-container class="layout-container">
     <el-aside width="var(--sidebar-width)" class="sidebar">
       <div class="logo">
-        <el-icon :size="28"><DataAnalysis /></el-icon>
-        <span class="logo-text">数据工坊</span>
+        <div class="brand-mark">
+          <el-icon :size="22"><DataAnalysis /></el-icon>
+        </div>
+        <div class="brand-meta">
+          <span class="logo-text">一体化 <b>AI</b> 平台</span>
+          <span class="logo-sub">Data Workshop Module</span>
+        </div>
       </div>
+      <div class="sidebar-title">Module 1 / 4</div>
       <el-menu
         :default-active="activeMenu"
         router
         class="menu"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        background-color="transparent"
+        text-color="#93b1c2"
+        active-text-color="#eaf7ff"
       >
+        <el-menu-item index="/home">
+          <el-icon><House /></el-icon>
+          <span>模块概览</span>
+        </el-menu-item>
         <el-menu-item index="/datasource/list">
           <el-icon><Collection /></el-icon>
           <span>数据源管理</span>
         </el-menu-item>
         <el-menu-item index="/dataset/list">
           <el-icon><Document /></el-icon>
-          <span>数据集构建</span>
+          <span>数据集管理</span>
         </el-menu-item>
         <el-menu-item index="/preprocess/list">
           <el-icon><Tools /></el-icon>
-          <span>数据预处理</span>
+          <span>预处理任务</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
 
     <el-container>
       <el-header class="header">
-        <div class="breadcrumb">
-          <el-breadcrumb>
-            <el-breadcrumb-item>首页</el-breadcrumb-item>
-            <el-breadcrumb-item v-if="route.meta.title">{{ route.meta.title }}</el-breadcrumb-item>
-          </el-breadcrumb>
+        <div>
+          <div class="crumbs">平台首页 / 四大模块 / 数据工坊 / {{ route.meta.title || '模块概览' }}</div>
+          <div class="module-title">{{ route.meta.title || '数据工坊模块' }}</div>
         </div>
         <div class="user-info">
-          <el-avatar :size="32" :icon="UserFilled" />
-          <span class="username">管理员</span>
+          <div class="module-badges">
+            <span class="module-badge">所属：平台四大模块之一</span>
+            <span class="module-badge">状态：运行中</span>
+            <span class="module-badge">版本：v2.4</span>
+          </div>
+          <el-avatar :size="34" :icon="UserFilled" />
         </div>
       </el-header>
 
@@ -52,7 +64,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { UserFilled } from '@element-plus/icons-vue'
+import { House, UserFilled } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const activeMenu = computed(() => route.path)
@@ -65,55 +77,172 @@ const activeMenu = computed(() => route.path)
 }
 
 .sidebar {
-  background-color: #304156;
+  padding: 22px 16px;
   display: flex;
   flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(8, 19, 29, 0.88), rgba(5, 12, 18, 0.84));
+  border-right: 1px solid rgba(86, 190, 255, 0.12);
+  backdrop-filter: blur(16px);
 }
 
 .logo {
-  height: var(--header-height);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: #fff;
-  border-bottom: 1px solid #1f2d3d;
+  gap: 14px;
+  padding: 6px 8px 18px;
+  color: #f3f8ff;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #f3f8ff;
+  background: linear-gradient(145deg, rgba(55, 240, 214, 0.3), rgba(61, 156, 255, 0.92));
+  box-shadow: 0 0 0 1px rgba(140, 233, 255, 0.24), 0 0 26px rgba(61, 156, 255, 0.36);
+}
+
+.brand-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .logo-text {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.menu {
+.logo-text b {
+  background: linear-gradient(90deg, var(--primary-color), #3d9cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.logo-sub {
+  color: #6d8a9b;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-title {
+  padding: 8px 12px 14px;
+  color: #5f8195;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+:deep(.menu) {
   border-right: none;
   flex: 1;
+  --el-menu-bg-color: transparent;
+  --el-menu-hover-bg-color: transparent;
+}
+
+:deep(.menu .el-menu-item) {
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.01);
+  transition: 0.22s ease;
+}
+
+:deep(.menu .el-menu-item:hover),
+:deep(.menu .el-menu-item.is-active) {
+  border-color: rgba(74, 222, 255, 0.16);
+  background: linear-gradient(90deg, rgba(55, 240, 214, 0.12), rgba(61, 156, 255, 0.08));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 0 24px rgba(55, 240, 214, 0.08);
+  transform: translateX(4px);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-  z-index: 1;
+  gap: 16px;
+  height: var(--header-height);
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
+  background: rgba(5, 14, 21, 0.72);
+  border-bottom: 1px solid rgba(86, 190, 255, 0.12);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.22);
 }
 
-.breadcrumb {
-  font-size: 14px;
+.crumbs {
+  color: #6d8a9b;
+  font-size: 13px;
 }
 
-.user-info {
+.module-title {
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.user-info,
+.module-badges {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--text-regular);
+  gap: 10px;
+}
+
+.module-badges {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.module-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #9ec2d3;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(74, 222, 255, 0.12);
 }
 
 .main-content {
-  background-color: var(--bg-color);
-  padding: 20px;
+  padding: 28px;
   overflow-y: auto;
+  background: transparent;
+}
+
+@media (max-width: 900px) {
+  .layout-container {
+    height: auto;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    border-right: 0;
+    border-bottom: 1px solid rgba(86, 190, 255, 0.12);
+  }
+
+  .header {
+    height: auto;
+    padding: 18px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .main-content {
+    padding: 18px;
+  }
 }
 </style>

@@ -4,19 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="结果列表" />
+    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="数据预处理结果">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/dataset.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/dataset.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/datasource.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/datasource.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/preprocess.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/preprocess.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/PageLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PageLayout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/StatusTag.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StatusTag.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mock/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/mock/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/variables.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/variables.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Dataset/Create.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Dataset/Create.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Dataset/List.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Dataset/List.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Datasource/Create.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Datasource/Create.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Datasource/List.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Datasource/List.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Preprocess/Create.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Preprocess/Create.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/Preprocess/List.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Preprocess/List.vue" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="50" />
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="merge-main" />
+        <entry key="$PROJECT_DIR$" value="Syshiiii" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -45,28 +59,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Syshiiii&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.postfix.templates&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "final",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\prettier",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.postfix.templates",
+    "ts.external.directory.path": "E:\\SYNuniversity\\计研所实习\\一体化ai平台项目\\data-workshop\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -105,6 +120,7 @@
       <updated>1782464465825</updated>
       <workItem from="1782464467150" duration="3385000" />
       <workItem from="1782798042607" duration="7238000" />
+      <workItem from="1782816422529" duration="4140000" />
     </task>
     <task id="LOCAL-00001" summary="结果列表">
       <option name="closed" value="true" />
@@ -138,7 +154,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782813062925</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="数据预处理结果">
+      <option name="closed" value="true" />
+      <created>1782816551133</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1782816551133</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -146,6 +170,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="结果列表" />
-    <option name="LAST_COMMIT_MESSAGE" value="结果列表" />
+    <MESSAGE value="数据预处理结果" />
+    <option name="LAST_COMMIT_MESSAGE" value="数据预处理结果" />
   </component>
 </project>

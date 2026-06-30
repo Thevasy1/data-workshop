@@ -7,8 +7,14 @@ const router = createRouter({
     {
       path: '/',
       component: PageLayout,
-      redirect: '/datasource/list',
+      redirect: '/home',
       children: [
+        {
+          path: '/home',
+          name: 'WorkshopHome',
+          component: () => import('@/views/Home.vue'),
+          meta: { title: '数据工坊首页' },
+        },
         {
           path: '/datasource',
           redirect: '/datasource/list',
@@ -23,13 +29,19 @@ const router = createRouter({
               path: 'create',
               name: 'DatasourceCreate',
               component: () => import('@/views/Datasource/Create.vue'),
-              meta: { title: '新增数据源' },
+              meta: { title: '新建数据源' },
             },
             {
               path: 'edit/:id',
               name: 'DatasourceEdit',
               component: () => import('@/views/Datasource/Create.vue'),
               meta: { title: '编辑数据源' },
+            },
+            {
+              path: 'detail/:id',
+              name: 'DatasourceDetail',
+              component: () => import('@/views/Datasource/Detail.vue'),
+              meta: { title: '数据源详情' },
             },
           ],
         },
@@ -48,6 +60,12 @@ const router = createRouter({
               name: 'DatasetCreate',
               component: () => import('@/views/Dataset/Create.vue'),
               meta: { title: '创建数据集' },
+            },
+            {
+              path: 'detail/:id',
+              name: 'DatasetDetail',
+              component: () => import('@/views/Dataset/Detail.vue'),
+              meta: { title: '数据集详情' },
             },
           ],
         },

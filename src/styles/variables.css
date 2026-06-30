@@ -1,14 +1,26 @@
 :root {
-  --primary-color: #409eff;
-  --success-color: #67c23a;
-  --warning-color: #e6a23c;
-  --danger-color: #f56c6c;
-  --info-color: #909399;
-  --text-primary: #303133;
-  --text-regular: #606266;
-  --text-secondary: #909399;
-  --border-color: #dcdfe6;
-  --bg-color: #f5f7fa;
-  --sidebar-width: 220px;
-  --header-height: 60px;
+  --bg: #061018;
+  --bg-2: #0a1824;
+  --panel: rgba(10, 24, 36, 0.78);
+  --panel-strong: rgba(12, 31, 46, 0.92);
+  --line: rgba(86, 190, 255, 0.18);
+  --line-strong: rgba(74, 222, 255, 0.34);
+  --text-primary: #eaf7ff;
+  --text-regular: #d6edf8;
+  --text-secondary: #85a8bc;
+  --text-muted: #6f93a8;
+  --primary-color: #37f0d6;
+  --success-color: #44e3a2;
+  --warning-color: #54caff;
+  --danger-color: #ff7f96;
+  --info-color: #7c9caf;
+  --border-color: rgba(74, 222, 255, 0.12);
+  --bg-color: transparent;
+  --sidebar-width: 230px;
+  --header-height: 78px;
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
+  --glow: 0 0 28px rgba(55, 240, 214, 0.24);
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
 }
