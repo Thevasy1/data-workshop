@@ -12,7 +12,7 @@
         <el-input v-model="searchForm.keyword" placeholder="请输入数据源名称" clearable />
       </el-form-item>
       <el-form-item label="类型">
-        <el-select v-model="searchForm.type" placeholder="请选择类型" clearable>
+        <el-select v-model="searchForm.type" placeholder="请选择类型" clearable style="width: 150px; --el-input-bg-color: #0f2130; --el-select-input-bg-color: #0f2130">
           <el-option label="API接口" value="api" />
           <el-option label="本地上传" value="upload" />
           <el-option label="数据库" value="database" />
@@ -30,10 +30,9 @@
       :data="tableData"
       :loading="loading"
       :total="total"
+      :show-operation="false"
       v-model:page="page"
       v-model:pageSize="pageSize"
-      @edit="handleEdit"
-      @delete="handleDelete"
     >
       <template #type="{ row }">
         <el-tag>{{ typeMap[row.type] }}</el-tag>
@@ -51,8 +50,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import CommonTable from '@/components/CommonTable.vue'
 import StatusTag from '@/components/StatusTag.vue'
 import datasourceApi from '@/api/datasource'
@@ -122,8 +122,7 @@ const handleEdit = (row: any) => {
 }
 
 const handleConfig = (row: any) => {
-  // TODO: 跳转到规则配置页面
-  console.log('配置规则', row.id)
+  ElMessage.info(`「${row.name}」的采集规则配置功能将在后续版本中开放`)
 }
 
 const handleDelete = (row: any) => {
@@ -135,13 +134,39 @@ const handleDelete = (row: any) => {
 }
 
 onMounted(fetchList)
+
+// 分页 / 每页条数变化时重新请求
+watch(page, fetchList)
+watch(pageSize, () => {
+  page.value = 1
+  fetchList()
+})
 </script>
 
 <style scoped>
 .search-form {
   margin-bottom: 20px;
   padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(10, 23, 34, 0.7), rgba(8, 18, 27, 0.8));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.status-dot.active {
+  background: var(--primary);
+  box-shadow: 0 0 10px rgba(55, 240, 214, 0.7);
+}
+
+.status-dot.inactive {
+  background: #6d8a9b;
 }
 </style>
