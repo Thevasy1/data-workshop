@@ -19,6 +19,15 @@ export default {
   getDetail(id: string) {
     return request.get(`/preprocess/${id}/detail`)
   },
+  getProgress(id: string) {
+    return request.get(`/preprocess/${id}/progress`)
+  },
+  getComparison(id: string) {
+    return request.get(`/preprocess/${id}/comparison`)
+  },
+  getLogs(id: string) {
+    return request.get(`/preprocess/${id}/logs`)
+  },
   getVersions(id: string) {
     return request.get(`/preprocess/${id}/versions`)
   },

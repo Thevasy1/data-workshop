@@ -5,3 +5,12 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+declare const ElMessage: {
+  success(message: string): void
+  error(message: string): void
+}
+
+declare const ElMessageBox: {
+  confirm(message: string, title: string, options?: Record<string, any>): Promise<void>
+}

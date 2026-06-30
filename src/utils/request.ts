@@ -1,6 +1,7 @@
-import axios from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
+import { ElMessage } from 'element-plus'
 
-const request = axios.create({
+const service = axios.create({
   baseURL: '/api',
   timeout: 10000,
   headers: {
@@ -8,10 +9,8 @@ const request = axios.create({
   },
 })
 
-// 请求拦截器
-request.interceptors.request.use(
+service.interceptors.request.use(
   (config) => {
-    // 可在此添加 token 等统一请求头
     return config
   },
   (error) => {
@@ -19,9 +18,12 @@ request.interceptors.request.use(
   }
 )
 
-// 响应拦截器
-request.interceptors.response.use(
+service.interceptors.response.use(
   (response) => {
+    if (response.config.responseType === 'blob') {
+      return response.data
+    }
+
     const { code, data, message } = response.data
     if (code !== 0) {
       ElMessage.error(message || '请求失败')
@@ -34,5 +36,36 @@ request.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+type RequestMethod = <T = any>(url: string, config?: AxiosRequestConfig) => Promise<T>
+type RequestMethodWithData = <T = any>(url: string, data?: any, config?: AxiosRequestConfig) => Promise<T>
+
+const request = {
+  request<T = any>(config: AxiosRequestConfig) {
+    return service.request<any, T>(config)
+  },
+  get<T = any>(url: string, config?: AxiosRequestConfig) {
+    return service.get<any, T>(url, config)
+  },
+  delete<T = any>(url: string, config?: AxiosRequestConfig) {
+    return service.delete<any, T>(url, config)
+  },
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return service.post<any, T>(url, data, config)
+  },
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return service.put<any, T>(url, data, config)
+  },
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return service.patch<any, T>(url, data, config)
+  },
+} as {
+  request: <T = any>(config: AxiosRequestConfig) => Promise<T>
+  get: RequestMethod
+  delete: RequestMethod
+  post: RequestMethodWithData
+  put: RequestMethodWithData
+  patch: RequestMethodWithData
+}
 
 export default request

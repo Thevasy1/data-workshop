@@ -67,6 +67,12 @@ const router = createRouter({
               component: () => import('@/views/Preprocess/Create.vue'),
               meta: { title: '新建预处理' },
             },
+            {
+              path: 'detail/:id',
+              name: 'PreprocessDetail',
+              component: () => import('@/views/Preprocess/Detail.vue'),
+              meta: { title: '预处理任务详情' },
+            },
           ],
         },
       ],

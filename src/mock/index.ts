@@ -1,11 +1,16 @@
 import { MockMethod } from 'vite-plugin-mock'
 
+interface MockContext {
+  query?: Record<string, any>
+  params?: Record<string, any>
+}
+
 export default [
   // 数据源列表
   {
     url: '/api/datasource/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query = {} }: MockContext) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `ds_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
@@ -24,7 +29,7 @@ export default [
   {
     url: '/api/datasource/detail/:id',
     method: 'get',
-    response: ({ params }) => ({
+    response: ({ params = {} }: MockContext) => ({
       code: 0,
       data: {
         id: params.id,
@@ -110,7 +115,7 @@ export default [
   {
     url: '/api/dataset/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query = {} }: MockContext) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `dt_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
@@ -213,7 +218,7 @@ export default [
   {
     url: '/api/preprocess/list',
     method: 'get',
-    response: ({ query }) => {
+    response: ({ query = {} }: MockContext) => {
       const { page = 1, pageSize = 10 } = query
       const list = Array.from({ length: pageSize }, (_, i) => ({
         id: `pp_${String((page - 1) * pageSize + i + 1).padStart(3, '0')}`,
@@ -251,9 +256,97 @@ export default [
   {
     url: '/api/preprocess/:id/detail',
     method: 'get',
+    response: ({ params = {} }: MockContext) => ({
+      code: 0,
+      data: {
+        id: params.id,
+        name: '用户数据清洗任务',
+        datasetId: 'dt_001',
+        datasetName: '用户行为数据集',
+        processTypes: ['clean', 'dedup'],
+        status: 'success',
+        progress: 100,
+        config: {
+          clean: { nullStrategy: 'delete', filterOutlier: true },
+          dedup: { dedupFields: ['user_id', 'email'], keepStrategy: 'first' },
+        },
+        inputVersion: 'v1',
+        outputVersion: 'v2',
+        inputCount: 50000,
+        outputCount: 48000,
+        createdAt: '2026-06-18T11:00:00Z',
+        finishedAt: '2026-06-18T11:15:00Z',
+      },
+      message: 'success',
+    }),
+  },
+  // 执行进度
+  {
+    url: '/api/preprocess/:id/progress',
+    method: 'get',
+    response: ({ params = {} }: MockContext) => ({
+      code: 0,
+      data: {
+        id: params.id,
+        status: 'success',
+        progress: 100,
+        currentStep: '处理完成',
+        processedCount: 50000,
+        totalCount: 50000,
+        estimatedRemainingSeconds: 0,
+      },
+      message: 'success',
+    }),
+  },
+  // 前后对比
+  {
+    url: '/api/preprocess/:id/comparison',
+    method: 'get',
     response: () => ({
       code: 0,
-      data: { id: 'pp_001', name: '清洗任务', datasetId: 'dt_001', processType: 'clean', status: 'success' },
+      data: {
+        before: {
+          version: 'v1',
+          recordCount: 50000,
+          fields: ['user_id', 'name', 'age', 'email', 'phone'],
+          sampleData: [
+            ['1001', '张三', 25, 'zhangsan@example.com', null],
+            ['1002', '李四', 31, 'lisi@example.com', null],
+          ],
+        },
+        after: {
+          version: 'v2',
+          recordCount: 48000,
+          fields: ['user_id', 'name', 'age', 'email', 'phone'],
+          sampleData: [
+            ['1001', '张三', 25, 'zhangsan@example.com', '13800138000'],
+            ['1002', '李四', 31, 'lisi@example.com', '13900139000'],
+          ],
+        },
+        diff: {
+          recordCountChange: -2000,
+          fieldsAdded: 0,
+          fieldsRemoved: 0,
+          nullRemoved: 2000,
+        },
+      },
+      message: 'success',
+    }),
+  },
+  // 执行日志
+  {
+    url: '/api/preprocess/:id/logs',
+    method: 'get',
+    response: () => ({
+      code: 0,
+      data: [
+        { time: '2026-06-18 11:00:01', level: 'info', message: '任务开始执行' },
+        { time: '2026-06-18 11:00:05', level: 'info', message: '开始读取源数据集 v1' },
+        { time: '2026-06-18 11:05:00', level: 'warning', message: '发现 2000 条空值记录' },
+        { time: '2026-06-18 11:05:02', level: 'info', message: '已删除 2000 条空值记录' },
+        { time: '2026-06-18 11:10:00', level: 'info', message: '异常值过滤完成，过滤 0 条' },
+        { time: '2026-06-18 11:15:00', level: 'info', message: '任务执行完成，输出 v2 版本' },
+      ],
       message: 'success',
     }),
   },
@@ -297,10 +390,10 @@ export default [
     response: () => ({
       code: 0,
       data: {
-        columns: ['user_id', 'name', 'age', 'email'],
+        columns: ['user_id', 'name', 'age', 'email', 'phone'],
         rows: [
-          ['1001', '张三', '25', 'zhangsan@example.com'],
-          ['1002', '李四', '30', 'lisi@example.com'],
+          ['1001', '张三', '25', 'zhangsan@example.com', '13800138000'],
+          ['1002', '李四', '30', 'lisi@example.com', '13900139000'],
         ],
       },
       message: 'success',

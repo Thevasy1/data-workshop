@@ -34,7 +34,7 @@
       <template #operation="{ row }">
         <el-button size="small" @click="handleView(row)">查看结果</el-button>
         <el-button size="small" @click="handleVersions(row)">版本管理</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+        <el-button type="danger" size="small" @click="handleDelete">删除</el-button>
       </template>
     </CommonTable>
   </div>
@@ -107,8 +107,7 @@ const handleCreate = () => {
 }
 
 const handleView = (row: any) => {
-  // TODO: 查看结果
-  console.log('查看结果', row.id)
+  router.push(`/preprocess/detail/${row.id}`)
 }
 
 const handleVersions = (row: any) => {
@@ -116,7 +115,7 @@ const handleVersions = (row: any) => {
   console.log('版本管理', row.id)
 }
 
-const handleDelete = (row: any) => {
+const handleDelete = () => {
   ElMessageBox.confirm('确认删除该预处理任务？', '提示', { type: 'warning' }).then(async () => {
     // TODO: 调用删除接口
     ElMessage.success('删除成功')

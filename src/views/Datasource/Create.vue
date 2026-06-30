@@ -40,7 +40,13 @@ const form = ref({
   status: 'active',
 })
 
-const formFields = [
+const formFields: Array<{
+  prop: string
+  label: string
+  type: 'input' | 'select' | 'textarea' | 'radio'
+  placeholder?: string
+  options?: { label: string; value: string }[]
+}> = [
   { prop: 'name', label: '名称', type: 'input', placeholder: '请输入数据源名称' },
   {
     prop: 'type',
