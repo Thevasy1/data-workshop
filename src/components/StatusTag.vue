@@ -1,44 +1,46 @@
 <template>
-  <el-tag :type="tagType" :size="size">
-    {{ tagLabel }}
+  <el-tag :type="tagType" effect="dark" round>
+    <span class="tag-dot">{{ label }}</span>
   </el-tag>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    status: string
-    type?: 'collect' | 'preprocess' | 'datasource'
-    size?: 'large' | 'default' | 'small'
-  }>(),
-  {
-    type: 'collect',
-    size: 'default',
-  }
-)
+const props = defineProps<{
+  status: string
+}>()
 
-const statusMap: Record<string, Record<string, { label: string; type: any }>> = {
-  collect: {
-    pending: { label: '待采集', type: 'info' },
-    running: { label: '采集中', type: 'warning' },
-    success: { label: '采集成功', type: 'success' },
-    failed: { label: '采集失败', type: 'danger' },
-    paused: { label: '已暂停', type: 'info' },
-  },
-  preprocess: {
-    pending: { label: '待处理', type: 'info' },
-    running: { label: '处理中', type: 'warning' },
-    success: { label: '处理成功', type: 'success' },
-    failed: { label: '处理失败', type: 'danger' },
-  },
-  datasource: {
-    active: { label: '启用', type: 'success' },
-    inactive: { label: '停用', type: 'info' },
-  },
+const statusMap: Record<string, { label: string; type: 'success' | 'warning' | 'danger' | 'info' | 'primary' }> = {
+  connected: { label: '连接正常', type: 'success' },
+  warning: { label: '连接波动', type: 'warning' },
+  offline: { label: '离线', type: 'danger' },
+  pending: { label: '待执行', type: 'info' },
+  running: { label: '执行中', type: 'primary' },
+  success: { label: '已完成', type: 'success' },
+  failed: { label: '失败', type: 'danger' },
+  paused: { label: '已暂停', type: 'warning' },
+  waiting: { label: '等待中', type: 'info' },
 }
 
-const tagLabel = computed(() => statusMap[props.type][props.status]?.label || props.status)
-const tagType = computed(() => statusMap[props.type][props.status]?.type || 'info')
+const option = computed(() => statusMap[props.status] || { label: props.status, type: 'info' })
+const label = computed(() => option.value.label)
+const tagType = computed(() => option.value.type)
 </script>
+
+<style scoped>
+.tag-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+</style>

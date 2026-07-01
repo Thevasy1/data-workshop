@@ -1,133 +1,169 @@
 <template>
-  <div class="page-container">
+  <div class="page">
     <div class="page-header">
-      <span class="page-title">创建数据集</span>
+      <div>
+        <h1 class="page-title">创建数据集</h1>
+        <p class="page-desc">选择数据源，配置字段映射、过滤条件和调度规则，完成数据集创建流程控制。</p>
+      </div>
     </div>
 
-    <el-steps :active="activeStep" finish-status="success" style="margin-bottom: 30px">
-      <el-step title="选择数据源" />
-      <el-step title="配置参数" />
-      <el-step title="确认创建" />
-    </el-steps>
+    <el-card class="form-card">
+      <el-steps :active="step" finish-status="success" align-center>
+        <el-step title="基础信息" />
+        <el-step title="采集规则" />
+        <el-step title="确认创建" />
+      </el-steps>
 
-    <el-card>
-      <!-- Step 1: 选择数据源 -->
-      <div v-if="activeStep === 0">
-        <el-form :model="form" label-width="120px">
-          <el-form-item label="选择数据源" prop="datasourceId" required>
-            <el-select v-model="form.datasourceId" placeholder="请选择数据源" style="width: 400px">
-              <el-option
-                v-for="item in datasourceOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="126px" class="dataset-form">
+        <template v-if="step === 0">
+          <el-form-item label="数据集名称" prop="name">
+            <el-input v-model.trim="form.name" placeholder="例如：用户行为宽表" />
+          </el-form-item>
+          <el-form-item label="负责人" prop="owner">
+            <el-input v-model.trim="form.owner" placeholder="请输入负责人" />
+          </el-form-item>
+          <el-form-item label="数据源" prop="datasourceId">
+            <el-select v-model="form.datasourceId" style="width: 100%" placeholder="请选择数据源" @change="loadFields">
+              <el-option v-for="item in store.datasources" :key="item.id" :label="`${item.name}（${item.type}）`" :value="item.id" />
             </el-select>
           </el-form-item>
-          <el-form-item label="数据集名称" prop="name" required>
-            <el-input v-model="form.name" placeholder="请输入数据集名称" style="width: 400px" />
+          <el-form-item label="数据集说明" prop="description">
+            <el-input v-model.trim="form.description" type="textarea" :rows="4" />
           </el-form-item>
-          <el-form-item label="描述">
-            <el-input v-model="form.description" type="textarea" placeholder="请输入描述" style="width: 400px" />
-          </el-form-item>
-        </el-form>
-      </div>
+        </template>
 
-      <!-- Step 2: 配置参数（简化版） -->
-      <div v-if="activeStep === 1">
-        <el-form :model="form.config" label-width="120px">
-          <el-form-item label="请求方式" v-if="datasourceType === 'api'">
-            <el-radio-group v-model="form.config.method">
-              <el-radio label="GET">GET</el-radio>
-              <el-radio label="POST">POST</el-radio>
-            </el-radio-group>
+        <template v-if="step === 1">
+          <el-form-item label="字段映射">
+            <el-table :data="selectedFields" stripe>
+              <el-table-column prop="source" label="源字段" />
+              <el-table-column prop="type" label="类型" width="140" />
+              <el-table-column label="目标字段">
+                <template #default="{ row }"><el-input v-model="row.target" /></template>
+              </el-table-column>
+              <el-table-column prop="comment" label="说明" />
+            </el-table>
           </el-form-item>
-          <el-form-item label="SQL语句" v-if="datasourceType === 'database'">
-            <el-input v-model="form.config.sql" type="textarea" placeholder="SELECT * FROM table" />
+          <el-form-item label="过滤条件">
+            <div class="rule-list">
+              <div v-for="(item, index) in form.filters" :key="index" class="rule-row">
+                <el-input v-model="form.filters[index]" placeholder="例如：event_time >= 最近30天" />
+                <el-button type="danger" text @click="form.filters.splice(index, 1)">删除</el-button>
+              </div>
+              <el-button @click="form.filters.push('')">新增过滤条件</el-button>
+            </div>
           </el-form-item>
-          <el-form-item label="文件格式" v-if="datasourceType === 'upload'">
-            <el-select v-model="form.config.fileFormat" placeholder="请选择格式">
-              <el-option label="CSV" value="csv" />
-              <el-option label="Excel" value="excel" />
-              <el-option label="JSON" value="json" />
+          <el-form-item label="调度规则" prop="schedule">
+            <el-select v-model="form.schedule" style="width: 260px">
+              <el-option label="手动执行" value="手动执行" />
+              <el-option label="每日 02:00" value="每日 02:00" />
+              <el-option label="每周一 01:00" value="每周一 01:00" />
+              <el-option label="每 6 小时" value="每 6 小时" />
             </el-select>
           </el-form-item>
-          <el-form-item label="抓取URL" v-if="datasourceType === 'web'">
-            <el-input v-model="form.config.url" placeholder="请输入要抓取的页面URL" />
-          </el-form-item>
-        </el-form>
-      </div>
+        </template>
 
-      <!-- Step 3: 确认 -->
-      <div v-if="activeStep === 2">
-        <el-descriptions :column="1" border>
-          <el-descriptions-item label="数据集名称">{{ form.name }}</el-descriptions-item>
-          <el-descriptions-item label="数据源">{{ selectedDatasourceName }}</el-descriptions-item>
-          <el-descriptions-item label="描述">{{ form.description || '无' }}</el-descriptions-item>
-        </el-descriptions>
-      </div>
+        <template v-if="step === 2">
+          <el-descriptions :column="1" border>
+            <el-descriptions-item label="数据集名称">{{ form.name }}</el-descriptions-item>
+            <el-descriptions-item label="负责人">{{ form.owner }}</el-descriptions-item>
+            <el-descriptions-item label="数据源">{{ datasourceName }}</el-descriptions-item>
+            <el-descriptions-item label="调度规则">{{ form.schedule }}</el-descriptions-item>
+            <el-descriptions-item label="过滤条件">{{ form.filters.filter(Boolean).join('；') || '无' }}</el-descriptions-item>
+          </el-descriptions>
+        </template>
 
-      <div class="step-actions">
-        <el-button v-if="activeStep > 0" @click="activeStep--">上一步</el-button>
-        <el-button v-if="activeStep < 2" type="primary" @click="activeStep++">下一步</el-button>
-        <el-button v-if="activeStep === 2" type="primary" @click="handleSubmit">确认创建</el-button>
-      </div>
+        <div class="form-actions">
+          <el-button @click="step === 0 ? router.back() : step--">{{ step === 0 ? '取消' : '上一步' }}</el-button>
+          <el-button v-if="step < 2" type="primary" @click="next">下一步</el-button>
+          <el-button v-else type="primary" @click="submit">确认创建</el-button>
+        </div>
+      </el-form>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import datasetApi from '@/api/dataset'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { useWorkshopStore } from '@/stores/workshop'
 
 const router = useRouter()
-const activeStep = ref(0)
-const datasourceOptions = ref<{ id: string; name: string }[]>([])
+const store = useWorkshopStore()
+const formRef = ref<FormInstance>()
+const step = ref(0)
+const selectedFields = ref<Array<{ source: string; target: string; type: string; comment: string }>>([])
 
-const form = ref({
-  datasourceId: '',
+const form = reactive({
   name: '',
+  owner: '',
+  datasourceId: '',
   description: '',
-  config: {
-    method: 'GET',
-    sql: '',
-    fileFormat: 'csv',
-    url: '',
-  },
+  schedule: '每日 02:00',
+  filters: [''],
 })
 
-const selectedDatasourceName = computed(() => {
-  const item = datasourceOptions.value.find((d) => d.id === form.value.datasourceId)
-  return item?.name || ''
-})
-
-const datasourceType = computed(() => {
-  // 模拟根据数据源ID获取类型，实际应根据选中数据源获取
-  return 'api'
-})
-
-const handleSubmit = async () => {
-  try {
-    await datasetApi.create(form.value)
-    ElMessage.success('创建成功')
-    router.push('/dataset/list')
-  } catch (e) {
-    console.error(e)
-  }
+const rules: FormRules = {
+  name: [{ required: true, message: '请输入数据集名称', trigger: 'blur' }],
+  owner: [{ required: true, message: '请输入负责人', trigger: 'blur' }],
+  datasourceId: [{ required: true, message: '请选择数据源', trigger: 'change' }],
+  description: [{ required: true, message: '请输入数据集说明', trigger: 'blur' }],
 }
 
-onMounted(async () => {
-  const res = await datasetApi.getDatasourceOptions()
-  datasourceOptions.value = res
-})
+const datasourceName = computed(() => store.findDatasource(form.datasourceId)?.name || '-')
+
+const loadFields = () => {
+  selectedFields.value = (store.findDatasource(form.datasourceId)?.fields || []).map((item) => ({
+    source: item.name,
+    target: item.name,
+    type: item.type,
+    comment: item.comment,
+  }))
+}
+
+const next = async () => {
+  if (step.value === 0) await formRef.value?.validate()
+  if (step.value === 1 && selectedFields.value.some((field) => !field.target.trim())) {
+    ElMessage.warning('目标字段不能为空')
+    return
+  }
+  step.value += 1
+}
+
+const submit = () => {
+  const id = store.createDataset({
+    name: form.name,
+    owner: form.owner,
+    datasourceId: form.datasourceId,
+    description: form.description,
+    schedule: form.schedule,
+    filters: form.filters.filter(Boolean),
+    fieldMappings: selectedFields.value,
+  })
+  ElMessage.success('数据集创建成功')
+  router.push(`/dataset/detail/${id}`)
+}
 </script>
 
 <style scoped>
-.step-actions {
-  display: flex;
+.dataset-form {
+  margin-top: 28px;
+}
+
+.rule-list {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.rule-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.form-actions {
   justify-content: center;
-  gap: 20px;
-  margin-top: 30px;
+  margin-top: 26px;
 }
 </style>

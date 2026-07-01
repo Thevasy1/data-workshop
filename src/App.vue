@@ -1,11 +1,7 @@
 <template>
-  <RouterView />
+  <WorkshopLayout />
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import WorkshopLayout from '@/layouts/WorkshopLayout.vue'
 </script>
-
-<style>
-@import './styles/global.css';
-</style>

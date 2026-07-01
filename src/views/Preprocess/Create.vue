@@ -1,153 +1,101 @@
 <template>
-  <div class="page-container">
+  <div class="page">
     <div class="page-header">
-      <span class="page-title">新建预处理任务</span>
+      <div>
+        <h1 class="page-title">创建预处理任务</h1>
+        <p class="page-desc">配置数据清洗、去重、标准化和格式转换规则，生成新的可用数据集版本。</p>
+      </div>
     </div>
 
-    <el-card style="max-width: 800px">
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+    <el-card class="form-card">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="136px">
         <el-form-item label="任务名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入任务名称" />
+          <el-input v-model.trim="form.name" placeholder="例如：用户行为宽表清洗任务" />
         </el-form-item>
-
         <el-form-item label="源数据集" prop="datasetId">
-          <el-select v-model="form.datasetId" placeholder="请选择数据集" style="width: 100%">
-            <el-option
-              v-for="item in datasetOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
+          <el-select v-model="form.datasetId" style="width: 100%" placeholder="请选择数据集">
+            <el-option v-for="item in store.datasets" :key="item.id" :label="`${item.name} / ${item.version}`" :value="item.id" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="处理方式" prop="processType">
-          <el-radio-group v-model="form.processType">
-            <el-radio label="clean">数据清洗</el-radio>
-            <el-radio label="dedup">数据去重</el-radio>
-            <el-radio label="normalize">标准化</el-radio>
-            <el-radio label="format">格式转换</el-radio>
-          </el-radio-group>
+        <el-form-item label="清洗规则">
+          <el-checkbox-group v-model="form.cleanRules">
+            <el-checkbox label="空值填充" />
+            <el-checkbox label="异常值过滤" />
+            <el-checkbox label="非法字符清理" />
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="去重规则">
+          <el-checkbox-group v-model="form.dedupRules">
+            <el-checkbox label="主键去重" />
+            <el-checkbox label="相似文本去重" />
+            <el-checkbox label="时间窗口去重" />
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="标准化规则">
+          <el-checkbox-group v-model="form.standardRules">
+            <el-checkbox label="大小写统一" />
+            <el-checkbox label="地区名称标准化" />
+            <el-checkbox label="日期格式标准化" />
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="格式转换">
+          <el-checkbox-group v-model="form.convertRules">
+            <el-checkbox label="金额转数值" />
+            <el-checkbox label="JSON 展平" />
+            <el-checkbox label="文本分词字段生成" />
+          </el-checkbox-group>
         </el-form-item>
 
-        <!-- 清洗配置 -->
-        <template v-if="form.processType === 'clean'">
-          <el-form-item label="空值处理">
-            <el-radio-group v-model="form.config.nullStrategy">
-              <el-radio label="delete">删除空值行</el-radio>
-              <el-radio label="fill">填充默认值</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="异常值过滤" v-if="form.config.nullStrategy === 'fill'">
-            <el-switch v-model="form.config.filterOutlier" />
-          </el-form-item>
-        </template>
+        <el-form-item label="规则摘要">
+          <pre class="code-box">{{ summary }}</pre>
+        </el-form-item>
 
-        <!-- 去重配置 -->
-        <template v-if="form.processType === 'dedup'">
-          <el-form-item label="去重字段">
-            <el-select v-model="form.config.dedupFields" multiple placeholder="请选择去重字段" style="width: 100%">
-              <el-option label="用户ID" value="user_id" />
-              <el-option label="手机号" value="phone" />
-              <el-option label="邮箱" value="email" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="保留策略">
-            <el-radio-group v-model="form.config.keepStrategy">
-              <el-radio label="first">保留第一条</el-radio>
-              <el-radio label="last">保留最后一条</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </template>
-
-        <!-- 标准化配置 -->
-        <template v-if="form.processType === 'normalize'">
-          <el-form-item label="标准化方式">
-            <el-select v-model="form.config.normalizeMethod" placeholder="请选择标准化方式" style="width: 100%">
-              <el-option label="Z-score 标准化" value="zscore" />
-              <el-option label="Min-Max 归一化" value="minmax" />
-            </el-select>
-          </el-form-item>
-        </template>
-
-        <!-- 格式转换配置 -->
-        <template v-if="form.processType === 'format'">
-          <el-form-item label="目标格式">
-            <el-select v-model="form.config.targetFormat" placeholder="请选择目标格式" style="width: 100%">
-              <el-option label="CSV" value="csv" />
-              <el-option label="JSON" value="json" />
-              <el-option label="Excel" value="excel" />
-            </el-select>
-          </el-form-item>
-        </template>
+        <div class="form-actions">
+          <el-button @click="router.back()">取消</el-button>
+          <el-button type="primary" @click="submit">创建任务</el-button>
+        </div>
       </el-form>
-
-      <div class="form-actions">
-        <el-button type="primary" @click="handleSubmit">提交</el-button>
-        <el-button @click="handleCancel">取消</el-button>
-      </div>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import preprocessApi from '@/api/preprocess'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { useWorkshopStore } from '@/stores/workshop'
 
 const router = useRouter()
-const formRef = ref()
-
-const datasetOptions = ref<{ id: string; name: string }[]>([])
-
-const form = ref({
+const store = useWorkshopStore()
+const formRef = ref<FormInstance>()
+const form = reactive({
   name: '',
   datasetId: '',
-  processType: 'clean',
-  config: {
-    nullStrategy: 'delete',
-    filterOutlier: false,
-    dedupFields: [],
-    keepStrategy: 'first',
-    normalizeMethod: 'zscore',
-    targetFormat: 'csv',
-  },
+  cleanRules: ['空值填充'],
+  dedupRules: ['主键去重'],
+  standardRules: ['大小写统一'],
+  convertRules: [] as string[],
 })
 
-const rules = {
+const rules: FormRules = {
   name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
   datasetId: [{ required: true, message: '请选择源数据集', trigger: 'change' }],
-  processType: [{ required: true, message: '请选择处理方式', trigger: 'change' }],
 }
 
-const handleSubmit = async () => {
-  const valid = await formRef.value?.validate()
-  if (!valid) return
+const allRules = computed(() => [...form.cleanRules, ...form.dedupRules, ...form.standardRules, ...form.convertRules])
+const summary = computed(() => allRules.value.map((item, index) => `${index + 1}. ${item}`).join('\n') || '暂未选择规则')
 
-  try {
-    await preprocessApi.create(form.value)
-    ElMessage.success('创建成功')
-    router.push('/preprocess/list')
-  } catch (e) {
-    console.error(e)
-  }
+const submit = async () => {
+  await formRef.value?.validate()
+  const id = store.createPreprocessTask({ name: form.name, datasetId: form.datasetId, rules: allRules.value })
+  ElMessage.success('预处理任务创建成功')
+  router.push(`/preprocess/detail/${id}`)
 }
-
-const handleCancel = () => {
-  router.back()
-}
-
-onMounted(async () => {
-  const res = await preprocessApi.getAvailableDatasets()
-  datasetOptions.value = res
-})
 </script>
 
 <style scoped>
 .form-actions {
-  display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
 }
 </style>

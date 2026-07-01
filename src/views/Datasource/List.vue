@@ -1,147 +1,113 @@
 <template>
-  <div class="page-container">
+  <div class="page">
     <div class="page-header">
-      <span class="page-title">数据源列表</span>
-      <el-button type="primary" @click="handleCreate">
-        <el-icon><Plus /></el-icon>新增数据源
-      </el-button>
+      <div>
+        <h1 class="page-title">数据源列表</h1>
+        <p class="page-desc">管理 API、本地上传、数据库和 Web 抓取数据源，支持搜索、筛选、测试连接和详情查看。</p>
+      </div>
+      <el-button type="primary" :icon="Plus" @click="router.push('/datasource/create')">新建数据源</el-button>
     </div>
 
-    <el-form :inline="true" :model="searchForm" class="search-form">
-      <el-form-item label="名称">
-        <el-input v-model="searchForm.keyword" placeholder="请输入数据源名称" clearable />
+    <el-form :inline="true" :model="query" class="search-panel">
+      <el-form-item label="关键字">
+        <el-input v-model="query.keyword" clearable placeholder="名称、负责人、地址" />
       </el-form-item>
       <el-form-item label="类型">
-        <el-select v-model="searchForm.type" placeholder="请选择类型" clearable>
-          <el-option label="API接口" value="api" />
-          <el-option label="本地上传" value="upload" />
-          <el-option label="数据库" value="database" />
-          <el-option label="Web页面抓取" value="web" />
+        <el-select v-model="query.type" clearable placeholder="全部类型" style="width: 160px">
+          <el-option v-for="item in sourceTypes" :key="item" :label="item" :value="item" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="状态">
+        <el-select v-model="query.status" clearable placeholder="全部状态" style="width: 160px">
+          <el-option label="连接正常" value="connected" />
+          <el-option label="连接波动" value="warning" />
+          <el-option label="离线" value="offline" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button :icon="Refresh" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <CommonTable
-      :columns="columns"
-      :data="tableData"
-      :loading="loading"
-      :total="total"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
-      @edit="handleEdit"
-      @delete="handleDelete"
-    >
-      <template #type="{ row }">
-        <el-tag>{{ typeMap[row.type] }}</el-tag>
-      </template>
-      <template #status="{ row }">
-        <StatusTag :status="row.status" type="datasource" />
-      </template>
-      <template #operation="{ row }">
-        <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-        <el-button size="small" @click="handleConfig(row)">配置规则</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
-      </template>
-    </CommonTable>
+    <el-table :data="pagedList" stripe>
+      <el-table-column prop="name" label="数据源名称" min-width="180" />
+      <el-table-column prop="type" label="类型" width="120" />
+      <el-table-column prop="owner" label="负责人" width="130" />
+      <el-table-column label="连接状态" width="130">
+        <template #default="{ row }"><StatusTag :status="row.status" /></template>
+      </el-table-column>
+      <el-table-column prop="address" label="接入地址" min-width="240" show-overflow-tooltip />
+      <el-table-column prop="createdAt" label="创建时间" width="170" />
+      <el-table-column label="操作" width="280" fixed="right">
+        <template #default="{ row }">
+          <el-button size="small" @click="test(row)">测试</el-button>
+          <el-button size="small" @click="router.push(`/datasource/detail/${row.id}`)">详情</el-button>
+          <el-button size="small" @click="router.push(`/datasource/edit/${row.id}`)">编辑</el-button>
+          <el-button size="small" type="danger" @click="remove(row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      v-model:current-page="page"
+      v-model:page-size="pageSize"
+      :total="filteredList.length"
+      :page-sizes="[5, 10, 20]"
+      layout="total, sizes, prev, pager, next"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import CommonTable from '@/components/CommonTable.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Refresh } from '@element-plus/icons-vue'
 import StatusTag from '@/components/StatusTag.vue'
-import datasourceApi from '@/api/datasource'
+import { useWorkshopStore, type Datasource, type SourceStatus, type SourceType } from '@/stores/workshop'
 
 const router = useRouter()
-
-const loading = ref(false)
-const tableData = ref([])
-const total = ref(0)
+const store = useWorkshopStore()
 const page = ref(1)
 const pageSize = ref(10)
-
-const searchForm = ref({
+const sourceTypes: SourceType[] = ['API', '本地上传', '数据库', 'Web抓取']
+const query = reactive<{ keyword: string; type: SourceType | ''; status: SourceStatus | '' }>({
   keyword: '',
   type: '',
+  status: '',
 })
 
-const typeMap: Record<string, string> = {
-  api: 'API接口',
-  upload: '本地上传',
-  database: '数据库',
-  web: 'Web页面抓取',
-}
+const filteredList = computed(() => {
+  const keyword = query.keyword.trim().toLowerCase()
+  return store.datasources.filter((item) => {
+    if (query.type && item.type !== query.type) return false
+    if (query.status && item.status !== query.status) return false
+    if (!keyword) return true
+    return [item.name, item.owner, item.address, item.description].join(' ').toLowerCase().includes(keyword)
+  })
+})
 
-const columns = [
-  { prop: 'name', label: '名称', minWidth: 150 },
-  { prop: 'type', label: '类型', width: 130, slot: true },
-  { prop: 'sourceUrl', label: '来源地址', minWidth: 200 },
-  { prop: 'status', label: '状态', width: 100, slot: true },
-  { prop: 'createdAt', label: '创建时间', width: 180 },
-  { prop: 'operation', label: '操作', width: 260, slot: true },
-]
+const pagedList = computed(() => {
+  const start = (page.value - 1) * pageSize.value
+  return filteredList.value.slice(start, start + pageSize.value)
+})
 
-const fetchList = async () => {
-  loading.value = true
-  try {
-    const res = await datasourceApi.getList({
-      page: page.value,
-      pageSize: pageSize.value,
-      keyword: searchForm.value.keyword,
-      type: searchForm.value.type,
-    })
-    tableData.value = res.list
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleSearch = () => {
+const reset = () => {
+  query.keyword = ''
+  query.type = ''
+  query.status = ''
   page.value = 1
-  fetchList()
 }
 
-const handleReset = () => {
-  searchForm.value = { keyword: '', type: '' }
-  page.value = 1
-  fetchList()
+const test = (row: Datasource) => {
+  store.testDatasource(row.id)
+  ElMessage.success(`${row.name} 连接测试成功`)
 }
 
-const handleCreate = () => {
-  router.push('/datasource/create')
-}
-
-const handleEdit = (row: any) => {
-  router.push(`/datasource/edit/${row.id}`)
-}
-
-const handleConfig = (row: any) => {
-  // TODO: 跳转到规则配置页面
-  console.log('配置规则', row.id)
-}
-
-const handleDelete = (row: any) => {
-  ElMessageBox.confirm('确认删除该数据源？', '提示', { type: 'warning' }).then(async () => {
-    await datasourceApi.delete(row.id)
+const remove = (row: Datasource) => {
+  ElMessageBox.confirm(`确认删除数据源“${row.name}”吗？`, '删除确认', { type: 'warning' }).then(() => {
+    store.deleteDatasource(row.id)
     ElMessage.success('删除成功')
-    fetchList()
   })
 }
-
-onMounted(fetchList)
 </script>
-
-<style scoped>
-.search-form {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-}
-</style>

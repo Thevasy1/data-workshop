@@ -1,157 +1,171 @@
 <template>
-  <div class="page-container">
+  <div class="page">
     <div class="page-header">
-      <span class="page-title">数据集列表</span>
-      <el-button type="primary" @click="handleCreate">
-        <el-icon><Plus /></el-icon>创建数据集
-      </el-button>
+      <div>
+        <h1 class="page-title">数据集列表</h1>
+        <p class="page-desc">展示全部数据集，支持按名称、负责人、数据源和采集状态筛选，并可进入详情、导出或标记可用于标注。</p>
+      </div>
+      <div class="toolbar">
+        <el-button @click="store.resetDemoData()">重置演示数据</el-button>
+        <el-button type="primary" :icon="Plus" @click="router.push('/dataset/create')">创建数据集</el-button>
+      </div>
     </div>
 
-    <el-form :inline="true" :model="searchForm" class="search-form">
-      <el-form-item label="名称">
-        <el-input v-model="searchForm.keyword" placeholder="请输入数据集名称" clearable />
+    <el-form :inline="true" :model="query" class="search-panel">
+      <el-form-item label="关键字">
+        <el-input v-model="query.keyword" clearable placeholder="名称、负责人、说明" />
       </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-          <el-option label="待采集" value="pending" />
-          <el-option label="采集中" value="running" />
-          <el-option label="采集成功" value="success" />
-          <el-option label="采集失败" value="failed" />
+      <el-form-item label="数据源">
+        <el-select v-model="query.datasourceId" clearable placeholder="全部数据源" style="width: 180px">
+          <el-option v-for="item in store.datasources" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="采集状态">
+        <el-select v-model="query.status" clearable placeholder="全部状态" style="width: 160px">
+          <el-option label="待执行" value="pending" />
+          <el-option label="执行中" value="running" />
+          <el-option label="已完成" value="success" />
+          <el-option label="失败" value="failed" />
           <el-option label="已暂停" value="paused" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button :icon="Refresh" @click="reset">重置筛选</el-button>
       </el-form-item>
     </el-form>
 
-    <CommonTable
-      :columns="columns"
-      :data="tableData"
-      :loading="loading"
-      :total="total"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
-    >
-      <template #collectStatus="{ row }">
-        <StatusTag :status="row.collectStatus" type="collect" />
-      </template>
-      <template #collectProgress="{ row }">
-        <el-progress v-if="row.collectStatus === 'running'" :percentage="row.collectProgress" />
-        <span v-else>{{ row.collectStatus === 'success' ? 100 : 0 }}%</span>
-      </template>
-      <template #operation="{ row }">
-        <el-button v-if="row.collectStatus === 'pending' || row.collectStatus === 'paused'" type="primary" size="small" @click="handleStart(row)">启动</el-button>
-        <el-button v-if="row.collectStatus === 'running'" size="small" @click="handlePause(row)">暂停</el-button>
-        <el-button v-if="row.collectStatus === 'failed'" type="warning" size="small" @click="handleRetry(row)">重试</el-button>
-        <el-button size="small" @click="handleLogs(row)">日志</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
-      </template>
-    </CommonTable>
+    <el-table :data="pagedList" stripe class="dataset-table">
+      <el-table-column prop="name" label="数据集名称" min-width="180" />
+      <el-table-column prop="datasourceName" label="数据源" min-width="170" />
+      <el-table-column prop="owner" label="负责人" width="110" />
+      <el-table-column label="采集状态" width="130">
+        <template #default="{ row }"><StatusTag :status="row.collectStatus" /></template>
+      </el-table-column>
+      <el-table-column label="进度" width="170">
+        <template #default="{ row }"><el-progress :percentage="row.collectProgress" /></template>
+      </el-table-column>
+      <el-table-column prop="recordCount" label="记录数" width="120" />
+      <el-table-column prop="version" label="版本" width="90" />
+      <el-table-column label="可标注" width="138" align="center">
+        <template #default="{ row }">
+          <el-switch v-model="row.labelEnabled" @change="(value: boolean) => store.setDatasetLabel(row.id, value)" />
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="360" align="center">
+        <template #default="{ row }">
+          <div class="dataset-actions">
+            <el-button size="small" @click="router.push(`/dataset/detail/${row.id}`)">详情</el-button>
+            <el-button size="small" @click="showLogs(row)">日志</el-button>
+            <el-dropdown trigger="click" @command="(format: 'csv' | 'json') => exportDataset(row, format)">
+              <el-button size="small">导出</el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="csv">导出 CSV</el-dropdown-item>
+                  <el-dropdown-item command="json">导出 JSON</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <el-button size="small" type="danger" @click="remove(row)">删除</el-button>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      v-model:current-page="page"
+      v-model:page-size="pageSize"
+      :total="filteredList.length"
+      :page-sizes="[5, 10, 20]"
+      layout="total, sizes, prev, pager, next"
+    />
+
+    <el-dialog v-model="logVisible" title="采集执行日志" width="720px">
+      <el-timeline>
+        <el-timeline-item v-for="item in currentLogs" :key="`${item.time}-${item.message}`" :timestamp="item.time">
+          {{ item.message }}
+        </el-timeline-item>
+      </el-timeline>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import CommonTable from '@/components/CommonTable.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Refresh } from '@element-plus/icons-vue'
 import StatusTag from '@/components/StatusTag.vue'
-import datasetApi from '@/api/dataset'
+import { useWorkshopStore, type CollectStatus, type Dataset } from '@/stores/workshop'
+import { downloadDataset } from '@/utils/exportDataset'
 
 const router = useRouter()
-
-const loading = ref(false)
-const tableData = ref([])
-const total = ref(0)
+const store = useWorkshopStore()
 const page = ref(1)
 const pageSize = ref(10)
-
-const searchForm = ref({
+const logVisible = ref(false)
+const currentLogs = ref<Dataset['logs']>([])
+const query = reactive<{ keyword: string; datasourceId: string; status: CollectStatus | '' }>({
   keyword: '',
+  datasourceId: '',
   status: '',
 })
 
-const columns = [
-  { prop: 'name', label: '名称', minWidth: 150 },
-  { prop: 'datasourceName', label: '数据源', minWidth: 150 },
-  { prop: 'collectStatus', label: '采集状态', width: 120, slot: true },
-  { prop: 'collectProgress', label: '进度', width: 180, slot: true },
-  { prop: 'recordCount', label: '记录数', width: 100 },
-  { prop: 'createdAt', label: '创建时间', width: 180 },
-  { prop: 'operation', label: '操作', width: 300, slot: true },
-]
+const filteredList = computed(() => {
+  const keyword = query.keyword.trim().toLowerCase()
+  return store.datasets.filter((item) => {
+    if (query.datasourceId && item.datasourceId !== query.datasourceId) return false
+    if (query.status && item.collectStatus !== query.status) return false
+    if (!keyword) return true
+    return [item.name, item.owner, item.datasourceName, item.description].join(' ').toLowerCase().includes(keyword)
+  })
+})
 
-const fetchList = async () => {
-  loading.value = true
-  try {
-    const res = await datasetApi.getList({
-      page: page.value,
-      pageSize: pageSize.value,
-      keyword: searchForm.value.keyword,
-      status: searchForm.value.status,
-    })
-    tableData.value = res.list
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
+const pagedList = computed(() => {
+  const start = (page.value - 1) * pageSize.value
+  return filteredList.value.slice(start, start + pageSize.value)
+})
 
-const handleSearch = () => {
+const reset = () => {
+  query.keyword = ''
+  query.datasourceId = ''
+  query.status = ''
   page.value = 1
-  fetchList()
 }
 
-const handleReset = () => {
-  searchForm.value = { keyword: '', status: '' }
-  page.value = 1
-  fetchList()
+const showLogs = (row: Dataset) => {
+  currentLogs.value = row.logs
+  logVisible.value = true
 }
 
-const handleCreate = () => {
-  router.push('/dataset/create')
+const exportDataset = (row: Dataset, format: 'csv' | 'json') => {
+  downloadDataset(row, format)
+  ElMessage.success(`已导出 ${row.name}.${format}`)
 }
 
-const handleStart = async (row: any) => {
-  await datasetApi.startCollect(row.id)
-  ElMessage.success('启动成功')
-  fetchList()
-}
-
-const handlePause = async (row: any) => {
-  await datasetApi.pauseCollect(row.id)
-  ElMessage.success('已暂停')
-  fetchList()
-}
-
-const handleRetry = async (row: any) => {
-  await datasetApi.retryCollect(row.id)
-  ElMessage.success('重新采集已启动')
-  fetchList()
-}
-
-const handleLogs = (row: any) => {
-  // TODO: 打开日志弹窗
-  console.log('查看日志', row.id)
-}
-
-const handleDelete = (row: any) => {
-  ElMessageBox.confirm('确认删除该数据集？', '提示', { type: 'warning' }).then(async () => {
-    await datasetApi.delete(row.id)
+const remove = (row: Dataset) => {
+  ElMessageBox.confirm(`确认删除数据集“${row.name}”吗？`, '删除确认', { type: 'warning' }).then(() => {
+    store.deleteDataset(row.id)
     ElMessage.success('删除成功')
-    fetchList()
   })
 }
-
-onMounted(fetchList)
 </script>
 
 <style scoped>
-.search-form {
-  margin-bottom: 20px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
+.dataset-table :deep(.el-switch) {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.dataset-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 316px;
+  white-space: nowrap;
+}
+
+.dataset-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
 }
 </style>
