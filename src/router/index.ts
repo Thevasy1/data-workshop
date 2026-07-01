@@ -12,7 +12,7 @@ const router = createRouter({
         {
           path: '/home',
           name: 'WorkshopHome',
-          component: () => import('@/views/Home.vue'),
+          component: () => import('@/views/Dashboard/Home.vue'),
           meta: { title: '数据工坊首页' },
         },
         {

@@ -459,6 +459,45 @@ const preprocessPreviews: Record<string, { columns: string[]; rows: Array<Array<
   },
 }
 
+const nowString = () => {
+  const now = new Date()
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+}
+
+const nextId = (prefix: 'ds' | 'dt' | 'pp', list: Array<{ id: string }>) => {
+  const max = list.reduce((current, item) => {
+    const match = item.id.match(/(\d+)$/)
+    return Math.max(current, match ? Number(match[1]) : 0)
+  }, 0)
+  return `${prefix}_${String(max + 1).padStart(3, '0')}`
+}
+
+const buildDatasetFieldsFromDatasource = (
+  datasourceId: string,
+  mappings: Array<{ source: string; target: string }>
+) => {
+  const sourceFields = datasourceFields[datasourceId] || []
+  if (!mappings.length) {
+    return sourceFields.map((field) => ({
+      name: field.name,
+      type: field.type,
+      description: field.description,
+      source: field.name,
+    }))
+  }
+
+  return mappings.map((mapping) => {
+    const matchedField = sourceFields.find((field) => field.name === mapping.source)
+    return {
+      name: mapping.target || mapping.source || 'field',
+      type: matchedField?.type || 'string',
+      description: matchedField?.description || '新建字段',
+      source: mapping.source || matchedField?.name || '',
+    }
+  })
+}
+
 const paginate = <T>(list: T[], query: Query = {}) => {
   const page = Number(query.page || 1)
   const pageSize = Number(query.pageSize || 10)
@@ -605,7 +644,35 @@ export default [
   {
     url: '/api/datasource/create',
     method: 'post',
-    response: () => ok({ id: 'ds_new' }, '创建成功'),
+    response: ({ body }: MockContext) => {
+      const id = nextId('ds', datasources)
+      const createdAt = nowString()
+      datasources.unshift({
+        id,
+        name: body?.name || `新建数据源 ${datasources.length + 1}`,
+        type: body?.type || 'api',
+        status: 'active',
+        description: body?.description || '',
+        config: body?.config || {},
+        createdAt,
+        updatedAt: createdAt,
+      })
+      datasourceFields[id] = datasourceFields[id] || [
+        { name: 'id', type: 'string', description: '主键' },
+        { name: 'name', type: 'string', description: '名称' },
+        { name: 'created_at', type: 'datetime', description: '创建时间' },
+      ]
+      datasourceTestRecords[id] = [
+        {
+          id: `tr_${String(Object.values(datasourceTestRecords).flat().length + 1).padStart(3, '0')}`,
+          time: createdAt,
+          success: true,
+          message: '新建后已生成默认测试记录。',
+          responseTime: 120,
+        },
+      ]
+      return ok({ id }, '创建成功')
+    },
   },
   {
     url: '/api/datasource/:id',
@@ -704,7 +771,49 @@ export default [
   {
     url: '/api/dataset/create',
     method: 'post',
-    response: () => ok({ id: 'dt_new', collectTaskId: 'collect_001' }, '创建成功'),
+    response: ({ body }: MockContext) => {
+      const id = nextId('dt', datasets)
+      const createdAt = nowString()
+      const datasource = getDatasourceById(body?.datasourceId)
+      const fields = buildDatasetFieldsFromDatasource(body?.datasourceId || '', body?.collectRules?.fieldMappings || [])
+      datasets.unshift({
+        id,
+        name: body?.name || `新建数据集 ${datasets.length + 1}`,
+        datasourceId: body?.datasourceId || datasource?.id || '',
+        datasourceName: datasource?.name || '未知数据源',
+        collectStatus: 'running',
+        collectProgress: 0,
+        recordCount: 0,
+        version: 'v1',
+        isLabeled: false,
+        description: body?.description || '',
+        fields,
+        collectRules: body?.collectRules || {
+          fieldMappings: [],
+          filters: [],
+          schedule: 'manual',
+        },
+        createdAt,
+        updatedAt: createdAt,
+      })
+      datasetSamples[id] = {
+        columns: fields.map((field) => field.name),
+        rows: [],
+      }
+      datasetVersions[id] = [
+        {
+          id: `${id}_v1`,
+          name: 'v1',
+          version: 'v1',
+          recordCount: 0,
+          fieldCount: fields.length,
+          createdAt,
+          description: body?.description || '新建数据集初始版本',
+        },
+      ]
+      datasetLogs[id] = [{ time: createdAt, level: 'info', message: '数据集已创建，等待首次采集执行。' }]
+      return ok({ id, collectTaskId: `collect_${id}` }, '创建成功')
+    },
   },
   {
     url: '/api/dataset/:id',
@@ -813,7 +922,52 @@ export default [
   {
     url: '/api/preprocess/create',
     method: 'post',
-    response: () => ok({ id: 'pp_new', status: 'pending' }, '创建成功'),
+    response: ({ body }: MockContext) => {
+      const id = nextId('pp', preprocessTasks)
+      const createdAt = nowString()
+      const dataset = getDatasetById(body?.datasetId)
+      const sourceSample = datasetSamples[dataset?.id || ''] || { columns: [], rows: [] }
+      const outputVersion = `v${((datasetVersions[dataset?.id || ''] || []).length || 0) + 1}`
+      preprocessTasks.unshift({
+        id,
+        name: body?.name || `新建预处理任务 ${preprocessTasks.length + 1}`,
+        datasetId: body?.datasetId || dataset?.id || '',
+        datasetName: dataset?.name || '未知数据集',
+        processTypes: body?.processTypes || [],
+        status: 'pending',
+        progress: 0,
+        inputVersion: body?.versionId || dataset?.version || 'v1',
+        outputVersion,
+        inputCount: dataset?.recordCount || 0,
+        outputCount: 0,
+        config: body?.config || {},
+        createdAt,
+        finishedAt: '',
+      })
+      preprocessLogs[id] = [{ time: createdAt, level: 'info', message: '预处理任务已创建，等待调度执行。' }]
+      preprocessPreviews[id] = sourceSample
+      preprocessComparisons[id] = {
+        before: {
+          version: body?.versionId || dataset?.version || 'v1',
+          recordCount: dataset?.recordCount || 0,
+          fields: (dataset?.fields || []).map((field) => field.name),
+          sampleData: sourceSample.rows.slice(0, 3),
+        },
+        after: {
+          version: outputVersion,
+          recordCount: 0,
+          fields: (dataset?.fields || []).map((field) => field.name),
+          sampleData: [],
+        },
+        diff: {
+          recordCountChange: 0,
+          fieldsAdded: 0,
+          fieldsRemoved: 0,
+          nullRemoved: 0,
+        },
+      }
+      return ok({ id, status: 'pending' }, '创建成功')
+    },
   },
   {
     url: '/api/preprocess/dataset/:datasetId/versions',

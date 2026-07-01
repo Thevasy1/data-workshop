@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="二版汇总">
+    <list default="true" id="a68b0f92-1b32-4517-bd11-90c0389f8c99" name="更改" comment="三版汇总">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mock/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/mock/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,6 +112,8 @@
       <workItem from="1782798042607" duration="7238000" />
       <workItem from="1782816422529" duration="4140000" />
       <workItem from="1782824318453" duration="383000" />
+      <workItem from="1782828162470" duration="77000" />
+      <workItem from="1782877644517" duration="3147000" />
     </task>
     <task id="LOCAL-00001" summary="结果列表">
       <option name="closed" value="true" />
@@ -159,7 +163,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782824354912</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="三版汇总">
+      <option name="closed" value="true" />
+      <created>1782828234661</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1782828234661</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -169,6 +181,7 @@
     <MESSAGE value="结果列表" />
     <MESSAGE value="数据预处理结果" />
     <MESSAGE value="二版汇总" />
-    <option name="LAST_COMMIT_MESSAGE" value="二版汇总" />
+    <MESSAGE value="三版汇总" />
+    <option name="LAST_COMMIT_MESSAGE" value="三版汇总" />
   </component>
 </project>
